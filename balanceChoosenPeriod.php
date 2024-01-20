@@ -2,11 +2,6 @@
 
 session_start();
 
-if (!isset($_SESSION['zalogowany'])) {
-  header('Location: index.php');
-  exit();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -15,8 +10,7 @@ if (!isset($_SESSION['zalogowany'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Success Login</title>
-
+  <title>Balance choisen period</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
   <link rel="stylesheet" href="./css/style.css" />
@@ -27,13 +21,22 @@ if (!isset($_SESSION['zalogowany'])) {
 
   <style>
     body {
-      background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
+      background-image: url("images/front-3.jpg");
+      height: 1300px;
+    }
+
+    .py-5 {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
     }
 
     .form-signin {
-      max-width: 530px;
+      max-width: 700px;
       padding: 1rem;
+    }
+
+    .my-5 {
+      margin-top: 3rem !important;
     }
   </style>
 </head>
@@ -41,7 +44,7 @@ if (!isset($_SESSION['zalogowany'])) {
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
-      <a class="navbar-brand" href="./index.php">Gold Digger</a>
+      <a class="navbar-brand" href="#">Gold Digger</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -63,7 +66,7 @@ if (!isset($_SESSION['zalogowany'])) {
               <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./balnceChoosenPeriod.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./balanceChoosenPeriod.php">Wybór ręczny dat</a></li>
               <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
             </ul>
           </li>
@@ -92,18 +95,88 @@ if (!isset($_SESSION['zalogowany'])) {
       </div>
     </div>
   </nav>
-  <main class="form-signin w-100 m-auto">
-    <div class="px-4 py-5 my-5 text-center">
-      <p class="lead mb-4">Jesteś zalogowany!</h1>
-        <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72"
-          border-radius="80%">
-      <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Wybierz dostępną opcję i dowiedz się ile <b><span style="color: #E6B31E">zł</span></b>(ota)
-          jest na Twoim koncie!</p>
-      </div>
-    </div>
-  </main>
 
+  <main class="form-signin w-100 m-auto">
+
+    <div class="px-4 py-5 my-5 text-center">
+      <button type="button" class="btn btn-primary">Wybierz daty</button>
+    </div>
+
+    <div>
+      <p class="head-of-table">Przychody</p>
+      <table class="table table-dark table-hover">
+        <tr>
+          <th>Id</th>
+          <th>Data</th>
+          <th>Kwota</th>
+          <th>Kategoria</th>
+          <th>Komentarz</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>01.01.2023</td>
+          <td>100.56</td>
+          <td>Brak</td>
+          <td>Brak</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>02.01.2023</td>
+          <td>200.56</td>
+          <td>Brak</td>
+          <td>Brak</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>03.01.2023</td>
+          <td>300.56</td>
+          <td>Brak</td>
+          <td>Brak</td>
+        </tr>
+      </table>
+      <div class="my-pie-chart"></div>
+    </div>
+
+    <div>
+      <p class="head-of-table">Wydatki</p>
+      <table class="table table-dark table-hover">
+        <tr>
+          <th>Id</th>
+          <th>Data</th>
+          <th>Kwota</th>
+          <th>Kategoria</th>
+          <th>Komentarz</th>
+          <th>Metoda płatności</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>01.01.2023</td>
+          <td>100.56</td>
+          <td>Brak</td>
+          <td>Brak jakiegokolwiek komentarza</td>
+          <td>gotówka</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>02.01.2023</td>
+          <td>200.56</td>
+          <td>Brak</td>
+          <td>Jeden bardzo długi, szczegółowy komentarz</td>
+          <td>Karta</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>03.01.2023</td>
+          <td>300.56</td>
+          <td>Brak</td>
+          <td>Brak</td>
+          <td>Przelew</td>
+        </tr>
+      </table>
+      <div class="my-pie-chart"></div>
+    </div>
+
+  </main>
 </body>
 
 </html>

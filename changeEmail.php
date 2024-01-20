@@ -2,11 +2,6 @@
 
 session_start();
 
-if (!isset($_SESSION['zalogowany'])) {
-  header('Location: index.php');
-  exit();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +10,7 @@ if (!isset($_SESSION['zalogowany'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Success Login</title>
+  <title>Change e-mail</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -31,10 +26,16 @@ if (!isset($_SESSION['zalogowany'])) {
       height: 850px;
     }
 
-    .form-signin {
-      max-width: 530px;
-      padding: 1rem;
+    .error {
+      margin-bottom: 1rem !important;
+      color: #E6B31E;
     }
+
+    .mb-3 {
+      margin-top: 11rem;
+      text-align: center;
+    }
+
   </style>
 </head>
 
@@ -92,16 +93,34 @@ if (!isset($_SESSION['zalogowany'])) {
       </div>
     </div>
   </nav>
+
   <main class="form-signin w-100 m-auto">
-    <div class="px-4 py-5 my-5 text-center">
-      <p class="lead mb-4">Jesteś zalogowany!</h1>
-        <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72"
-          border-radius="80%">
-      <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Wybierz dostępną opcję i dowiedz się ile <b><span style="color: #E6B31E">zł</span></b>(ota)
-          jest na Twoim koncie!</p>
+    <form method="post">
+      <h1 class="h3 mb-3 fw-normal">Podaj nowy e-mail</h1>
+
+      <div class="form-floating">
+        <input type="text" class="form-control" id="floatingInput" placeholder="email address"
+          data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="email" required
+          type="email" value="">
+        <div id="norton-idsafe-field-styling-divId"
+          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-at"
+            viewBox="0 0 16 16">
+            <path
+              d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z" />
+          </svg>
+        </div>
+        <label for="floatingInput">Adres e-mail</label>
       </div>
-    </div>
+
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="./successDataChange.php">
+          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
+        <a href="./successLogin.php">
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
+      </div>
+
+    </form>
   </main>
 
 </body>

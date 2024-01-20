@@ -2,44 +2,44 @@
 
 session_start();
 
-if (!isset($_SESSION['zalogowany'])) {
-  header('Location: index.php');
-  exit();
-}
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Success Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change name</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
-  <link rel="stylesheet" href="./css/style.css" />
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/style.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous"></script>
+    
+    <style>
+        body {
+            background-image: url("./images/gold-ring-1.jpg");
+            height: 850px;
+        }
 
-  <style>
-    body {
-      background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
-    }
+        .error {
+            margin-bottom: 1rem !important;
+            color: #E6B31E;
+        }
 
-    .form-signin {
-      max-width: 530px;
-      padding: 1rem;
-    }
-  </style>
+        .mb-3 {
+            margin-top: 11rem;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
       <a class="navbar-brand" href="./index.php">Gold Digger</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
@@ -70,7 +70,7 @@ if (!isset($_SESSION['zalogowany'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Kategoria</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
+            <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
             </ul>
           </li>
@@ -92,17 +92,35 @@ if (!isset($_SESSION['zalogowany'])) {
       </div>
     </div>
   </nav>
-  <main class="form-signin w-100 m-auto">
-    <div class="px-4 py-5 my-5 text-center">
-      <p class="lead mb-4">Jesteś zalogowany!</h1>
-        <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72"
-          border-radius="80%">
-      <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Wybierz dostępną opcję i dowiedz się ile <b><span style="color: #E6B31E">zł</span></b>(ota)
-          jest na Twoim koncie!</p>
+
+    <main class="form-signin w-100 m-auto">
+        <form method="post">
+            <h1 class="h3 mb-3 fw-normal">Podaj nowe imię</h1>
+
+            <div class="form-floating">
+                <input type="text" class="form-control" id="floatingInput" placeholder="Name"
+                    data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="nick" autofocus
+                    required value="">
+                <div id="norton-idsafe-field-styling-divId"
+                    style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-person" viewBox="0 0 16 16">
+                        <path
+                            d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+                    </svg>
+                </div>
+                <label for="floatingInput">Imię</label>
+            </div>
+           
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="./successDataChange.php">
+          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
+        <a href="./successLogin.php">
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
       </div>
-    </div>
-  </main>
+
+        </form>
+    </main>
 
 </body>
 

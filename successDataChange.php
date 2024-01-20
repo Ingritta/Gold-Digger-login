@@ -68,7 +68,7 @@ if (!isset($_SESSION['zalogowany'])) {
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Kategoria</a>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Kategorie</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
@@ -94,7 +94,7 @@ if (!isset($_SESSION['zalogowany'])) {
   </nav>
   <main class="form-signin w-100 m-auto">
     <div class="px-4 py-5 my-5 text-center">
-      <p class="lead mb-4">Jesteś zalogowany!</h1>
+      <p class="lead mb-4">Dane zostały pomyślnie zmienione!</h1>
         <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72"
           border-radius="80%">
       <div class="col-lg-6 mx-auto">
@@ -103,7 +103,6 @@ if (!isset($_SESSION['zalogowany'])) {
       </div>
     </div>
   </main>
-
 </body>
 
 </html>

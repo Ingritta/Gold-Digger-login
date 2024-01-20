@@ -2,11 +2,6 @@
 
 session_start();
 
-if (!isset($_SESSION['zalogowany'])) {
-  header('Location: index.php');
-  exit();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +10,7 @@ if (!isset($_SESSION['zalogowany'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Success Login</title>
+  <title>Add income category</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -31,10 +26,21 @@ if (!isset($_SESSION['zalogowany'])) {
       height: 850px;
     }
 
-    .form-signin {
-      max-width: 530px;
-      padding: 1rem;
+    .error {
+      margin-bottom: 1rem !important;
+      color: #E6B31E;
     }
+
+    .mb-3 {
+      margin-top: 11rem;
+      text-align: center;
+    }
+
+    .col-12 {
+      margin-bottom: 2.5rem !important;
+
+    }
+
   </style>
 </head>
 
@@ -92,16 +98,36 @@ if (!isset($_SESSION['zalogowany'])) {
       </div>
     </div>
   </nav>
+
   <main class="form-signin w-100 m-auto">
-    <div class="px-4 py-5 my-5 text-center">
-      <p class="lead mb-4">Jesteś zalogowany!</h1>
-        <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72"
-          border-radius="80%">
-      <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Wybierz dostępną opcję i dowiedz się ile <b><span style="color: #E6B31E">zł</span></b>(ota)
-          jest na Twoim koncie!</p>
+    <form method="post">
+      <h1 class="h3 mb-3 fw-normal">Podaj opis kategorii</h1>
+
+      <div class="col-12">
+        <label for="comment" class="form-label"></label>
+        <div class="input-group has-validation">
+          <span class="input-group-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
+              viewBox="0 0 16 16">
+              <path
+                d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
+            </svg>
+          </span>
+          <input type="text" class="form-control" id="goal" placeholder="Opis kategorii przychodów" required="">
+          <div class="invalid-feedback">
+            Proszę uzupełnić informację.
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="./successDataChange.php">
+          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Dodaj</button></a>
+        <a href="./successLogin.php">
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
+      </div>
+
+    </form>
   </main>
 
 </body>

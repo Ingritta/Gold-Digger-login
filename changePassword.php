@@ -2,11 +2,6 @@
 
 session_start();
 
-if (!isset($_SESSION['zalogowany'])) {
-  header('Location: index.php');
-  exit();
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +10,7 @@ if (!isset($_SESSION['zalogowany'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Success Login</title>
+  <title>Change password</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -31,9 +26,14 @@ if (!isset($_SESSION['zalogowany'])) {
       height: 850px;
     }
 
-    .form-signin {
-      max-width: 530px;
-      padding: 1rem;
+    .error {
+      margin-bottom: 1rem !important;
+      color: #E6B31E;
+    }
+
+    .mb-3 {
+      margin-top: 11rem;
+      text-align: center;
     }
   </style>
 </head>
@@ -92,18 +92,57 @@ if (!isset($_SESSION['zalogowany'])) {
       </div>
     </div>
   </nav>
-  <main class="form-signin w-100 m-auto">
-    <div class="px-4 py-5 my-5 text-center">
-      <p class="lead mb-4">Jesteś zalogowany!</h1>
-        <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72"
-          border-radius="80%">
-      <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Wybierz dostępną opcję i dowiedz się ile <b><span style="color: #E6B31E">zł</span></b>(ota)
-          jest na Twoim koncie!</p>
-      </div>
-    </div>
-  </main>
 
+  <main class="form-signin w-100 m-auto">
+    <form method="post">
+      <h1 class="h3 mb-3 fw-normal">Podaj nowe hasło</h1>
+
+      <div class="form-floating">
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password"
+          data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off" name="haslo1" required value="">
+        <div id="norton-idsafe-field-styling-divId"
+          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
+            viewBox="0 0 16 16">
+            <path
+              d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
+            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+          </svg>
+        </div>
+        <label for="floatingPassword">Hasło</label>
+      </div>
+
+      <?php
+      if (isset($_SESSION['e_haslo'])) {
+        echo '<div class="error">' . $_SESSION['e_haslo'] . '</div>';
+        unset($_SESSION['e_haslo']);
+      }
+      ?>
+      <div class="form-floating">
+        <input type="password" class="form-control" id="inputPasswordConfirmation" name="haslo2"
+          placeholder="Repeat password" data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off"
+          value="">
+        <div id="norton-idsafe-field-styling-divId"
+          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
+            viewBox="0 0 16 16">
+            <path
+              d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
+            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+          </svg>
+        </div>
+        <label for="floatingPassword">Powtórz hasło</label>
+      </div>
+
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="./successDataChange.php">
+          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
+        <a href="./successLogin.php">
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
+      </div>
+
+    </form>
+  </main>
 </body>
 
 </html>
