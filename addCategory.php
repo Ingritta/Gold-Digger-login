@@ -2,6 +2,48 @@
 
 session_start();
 
+$userId = 7;
+$description = $_POST['description'];
+$choise = $_POST['category'];
+// $userId = $_POST['userId'];
+
+require_once "connect.php";
+
+mysqli_report(MYSQLI_REPORT_STRICT);
+
+try {
+  $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+  if ($polaczenie->connect_errno != 0) {
+    throw new Exception(mysqli_connect_errno());
+  } else {
+
+    if ($choise == "incomes_categories") {
+      $polaczenie->query("INSERT INTO incomes_categories VALUES (
+            NULL,
+            '$userId',
+            '$description'
+)");
+    } else if ($choise == "expenses_categories") {
+      $polaczenie->query("INSERT INTO expenses_categories VALUES (
+            NULL,
+            '$userId',
+            '$description'
+)");
+    } else if ($choise == "payment_method") {
+      $polaczenie->query("INSERT INTO payment_method VALUES (
+          NULL,
+          '$userId',
+          '$description'
+)");
+    }
+  }
+
+  $polaczenie->close();
+
+} catch (Exception $e) {
+  echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+  echo '<br />Iformacja developerska: ' . $e;
+}
 ?>
 
 <!DOCTYPE html>
@@ -99,9 +141,21 @@ session_start();
 
   <main class="form-signin w-100 m-auto">
     <form method="post">
-      <h1 class="h3 mb-3 fw-normal">Podaj opis kategorii</h1>
-      <div class="form-floating">
-        <label for="comment" class="form-label"></label>
+      <h1 class="h3 mb-3 fw-normal">Wybierz</h1>
+
+      <div class="col-12">
+        <label for="category" class="form-label">Do której grupy dodać nową kategorię</label>
+        <select id="category" name="category" class="form-select" required="">
+          <option value="incomes_categories">Kategorie przychodów</option>
+          <option value="expenses_categories">Kategorie wydatków</option>
+          <option value="payment_method">Metody płatności</option>
+        </select>
+        <div class="invalid-feedback">
+          Wybierz kateorię.
+        </div>
+      </div>
+
+      <div class="col-12">
         <div class="input-group has-validation">
           <span class="input-group-text">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
@@ -110,7 +164,8 @@ session_start();
                 d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
             </svg>
           </span>
-          <input type="text" class="form-control" id="goal" placeholder="Opis" required="">
+          <input type="text" class="form-control" id="goal" placeholder="Nazwa kategorii" required=""
+            name="description">
           <div class="invalid-feedback">
             Proszę uzupełnić informację.
           </div>
