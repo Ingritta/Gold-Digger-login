@@ -10,7 +10,7 @@ session_start();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add income category</title>
+  <title>Choose period</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -33,14 +33,11 @@ session_start();
 
     .mb-3 {
       margin-top: 11rem;
-      text-align: center;
     }
 
     .col-12 {
       margin-bottom: 2.5rem !important;
-
     }
-
   </style>
 </head>
 
@@ -56,7 +53,7 @@ session_start();
       <div class="collapse navbar-collapse" id="navbarsExample03">
         <ul class="navbar-nav me-auto mb-2 mb-sm-0">
           <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Dodaj</a>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Dodaj</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
@@ -69,7 +66,7 @@ session_start();
               <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./balnceChoosenPeriod.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
               <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
             </ul>
           </li>
@@ -101,10 +98,8 @@ session_start();
 
   <main class="form-signin w-100 m-auto">
     <form method="post">
-      <h1 class="h3 mb-3 fw-normal">Podaj opis kategorii</h1>
-
-      <div class="col-12">
-        <label for="comment" class="form-label"></label>
+      <div class="col-12 mb-3">
+        <label for="goal" class="form-label">Data początkowa</label>
         <div class="input-group has-validation">
           <span class="input-group-text">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
@@ -113,7 +108,24 @@ session_start();
                 d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
             </svg>
           </span>
-          <input type="text" class="form-control" id="goal" placeholder="Opis kategorii przychodów" required="">
+          <input type="date" class="form-control" id="goal" placeholder="Data" required="">
+          <div class="invalid-feedback">
+            Proszę uzupełnić informację.
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <label for="goal" class="form-label">Data końcowa</label>
+        <div class="input-group has-validation">
+          <span class="input-group-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
+              viewBox="0 0 16 16">
+              <path
+                d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
+            </svg>
+          </span>
+          <input type="date" class="form-control" id="goal" placeholder="Data" required="">
           <div class="invalid-feedback">
             Proszę uzupełnić informację.
           </div>
@@ -121,9 +133,9 @@ session_start();
       </div>
 
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="./successDataChange.php">
-          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Dodaj</button></a>
-        <a href="./successLogin.php">
+        <a href="./balanceChoosenPeriod.php">
+          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zapisz</button></a>
+        <a href="./balanceChoosenPeriod.php">
           <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
       </div>
 

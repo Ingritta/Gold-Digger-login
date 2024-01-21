@@ -3,7 +3,6 @@
 session_start();
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,8 +43,9 @@ session_start();
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
       <a class="navbar-brand" href="./index.php">Gold Digger</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
-        aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false"
+        aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -65,7 +65,7 @@ session_start();
               <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./balnceChoosenPeriod.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
               <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
             </ul>
           </li>
@@ -97,9 +97,9 @@ session_start();
 
   <main class="form-signin w-100 m-auto">
 
-  <h4 class="mb-3">Szczegóły transakcji</h4>
+    <h4 class="mb-3">Szczegóły transakcji</h4>
     <div class="col-md-7 col-lg-8">
-      
+
       <form class="needs-validation" novalidate="">
         <div class="row g-3">
 
@@ -183,7 +183,6 @@ session_start();
           </div>
 
           <h4 class="mb-3">Płatność</h4>
-
           <div class="my-3">
             <div class="form-check">
               <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required="">
@@ -198,7 +197,6 @@ session_start();
               <label class="form-check-label" for="other">Inna forma płatności: przelew/ paypal/ blik</label>
             </div>
           </div>
-
           <div class="px-4 py-5 my-5 text-center">
             <a href="./successDataChange.php">
               <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Dodaj</button></a>
@@ -206,6 +204,8 @@ session_start();
               <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
           </div>
         </div>
+      </form>
+
 
   </main>
 </body>

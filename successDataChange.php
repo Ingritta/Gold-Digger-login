@@ -15,7 +15,7 @@ if (!isset($_SESSION['zalogowany'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Success Login</title>
+  <title>Success data change</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -63,7 +63,7 @@ if (!isset($_SESSION['zalogowany'])) {
               <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./balnceChoosenPeriod.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
               <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
             </ul>
           </li>

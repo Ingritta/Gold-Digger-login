@@ -3,8 +3,8 @@
 session_start();
 
 if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
-    header('Location: successLogin.php');
-    exit();
+  header('Location: successLogin.php');
+  exit();
 }
 
 ?>
@@ -15,7 +15,7 @@ if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log in</title>
+  <title>Sign in</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -53,8 +53,8 @@ if ((isset($_SESSION['zalogowany'])) && ($_SESSION['zalogowany'] == true)) {
     <form action="login.php" method="post">
       <h1 class="h3 mb-3 fw-normal">Podaj dane logowania</h1>
       <div class="form-floating">
-        <input type="text" class="form-control" id="floatingInput" name="user" placeholder="Name"
-          autofocus data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off">
+        <input type="text" class="form-control" id="floatingInput" name="user" placeholder="Name" autofocus
+          data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off">
         <div id="norton-idsafe-field-styling-divId"
           style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-at"

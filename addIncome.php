@@ -65,7 +65,7 @@ session_start();
               <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./balnceChoosenPeriod.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
               <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
             </ul>
           </li>
