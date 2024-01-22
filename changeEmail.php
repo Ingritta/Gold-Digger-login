@@ -2,6 +2,13 @@
 
 session_start();
 
+require_once 'database.php';
+
+$userId = 2;
+$email = $_POST['email'];
+
+$usersQuery = $db->query("UPDATE users SET email='$email' WHERE id = 2");
+
 ?>
 
 <!DOCTYPE html>

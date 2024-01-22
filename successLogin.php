@@ -99,7 +99,7 @@ if (!isset($_SESSION['zalogowany'])) {
           border-radius="80%">
       <div class="col-lg-6 mx-auto">
         <p class="lead mb-4">Wybierz dostępną opcję i dowiedz się ile <b><span style="color: #E6B31E">zł</span></b>(ota)
-          jest na Twoim koncie!</p>
+          jest w Twoim skarbcu!</p>
       </div>
     </div>
   </main>

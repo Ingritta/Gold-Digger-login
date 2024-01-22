@@ -2,14 +2,17 @@
 
 session_start();
 
-$userId = 7;
+require_once 'database.php';
+
+$userId = 2;
 $date = $_POST['date'];
 $amount = $_POST['amount'];
-$category = $_POST['category'];
+$choise = $_POST['category'];
 $comment = $_POST['comment'];
-$paymentMethod = $_Post['payment_method'];
+$paymentMethod = $_POST['paymentMethod'];
 
-require_once "connect.php";
+$usersQuery = $db->query('SELECT description FROM expenses_categories');
+$category = $usersQuery->fetchAll();
 
 mysqli_report(MYSQLI_REPORT_STRICT);
 
@@ -24,7 +27,7 @@ try {
                     '$userId',
                     '$date',
                     '$amount',
-                    '$category',
+                    '$choise',
                     '$comment',
                     '$paymentMethod'
                     )");
@@ -174,26 +177,14 @@ try {
 
           <div class="col-12">
             <label for="category" class="form-label">Kategoria</label>
-            <select class="form-select" id="category" required="">
-              <option value="">Wybierz...</option>
-              <option>Odzież</option>
-              <option>Żywność</option>
-              <option>Mieszkanie</option>
-              <option>Transport</option>
-              <option>Telekomunikacja</option>
-              <option>Opieka Zdrowotna</option>
-              <option>Higina</option>
-              <option>Dzieci</option>
-              <option>Opieka zdrowotna</option>
-              <option>Higiena</option>
-              <option>Rozrywka</option>
-              <option>Edukacja</option>
-              <option>Książki</option>
-              <option>Oszczędności</option>
-              <option>Emerytura</option>
-              <option>Spłata zobowiązań</option>
-              <option>Darowizna</option>
-              <option>Inne</option>
+            <select id="category" class="form-select" name="category" required="">
+              <option>Wybierz...
+                <?php
+                foreach ($category as $user) {
+                  echo "<option>{$user['description']}</option>";
+                }
+                ?>
+              </option>
             </select>
             <div class="invalid-feedback">
               Wybierz kateorię.
@@ -220,15 +211,15 @@ try {
           <h4 class="mb-3">Płatność</h4>
           <div class="my-3">
             <div class="form-check">
-              <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required="">
+              <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required="" value="Gotówka">
               <label class="form-check-label" for="cash">Gotówka</label>
             </div>
             <div class="form-check">
-              <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required="">
+              <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required="" value="Karta">
               <label class="form-check-label" for="debit">Karta</label>
             </div>
             <div class="form-check">
-              <input id="other" name="paymentMethod" type="radio" class="form-check-input" required="">
+              <input id="other" name="paymentMethod" type="radio" class="form-check-input" required="" value="Inna">
               <label class="form-check-label" for="other">Inna forma płatności: przelew/ paypal/ blik</label>
             </div>
           </div>
@@ -240,8 +231,6 @@ try {
           </div>
         </div>
       </form>
-
-
   </main>
 </body>
 

@@ -2,13 +2,17 @@
 
 session_start();
 
-$userId = 7;
+require_once 'database.php';
+
+$userId = 2;
 $date = $_POST['date'];
 $amount = $_POST['amount'];
-$category = $_POST['category'];
+$choise = $_POST['category'];
 $comment = $_POST['comment'];
 
-require_once "connect.php";
+$usersQuery = $db->query('SELECT description FROM incomes_categories');
+$category = $usersQuery->fetchAll();
+
 
 mysqli_report(MYSQLI_REPORT_STRICT);
 
@@ -23,7 +27,7 @@ try {
                     '$userId',
                     '$date',
                     '$amount',
-                    '$category',
+                    '$choise',
                     '$comment'
                     )");
   }
@@ -34,7 +38,6 @@ try {
   echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
   echo '<br />Iformacja developerska: ' . $e;
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -68,7 +71,7 @@ try {
     }
 
     .mb-3 {
-      margin-top: 3rem;
+      margin-top: 6rem;
     }
   </style>
 </head>
@@ -170,27 +173,14 @@ try {
 
           <div class="col-12">
             <label for="category" class="form-label">Kategoria</label>
-            <select class="form-select" id="category" required="">
-              <option value="">Wybierz...</option>
-              <!-- <option>payment_method.description</option> -->
-              <option>Odzież</option>
-              <option>Żywność</option>
-              <option>Mieszkanie</option>
-              <option>Transport</option>
-              <option>Telekomunikacja</option>
-              <option>Opieka Zdrowotna</option>
-              <option>Higina</option>
-              <option>Dzieci</option>
-              <option>Opieka zdrowotna</option>
-              <option>Higiena</option>
-              <option>Rozrywka</option>
-              <option>Edukacja</option>
-              <option>Książki</option>
-              <option>Oszczędności</option>
-              <option>Emerytura</option>
-              <option>Spłata zobowiązań</option>
-              <option>Darowizna</option>
-              <option>Inne</option>
+            <select id="category" class="form-select" name="category" required="">
+              <option>Wybierz...
+                <?php
+                foreach ($category as $user) {
+                  echo "<option>{$user['description']}</option>";
+                }
+                ?>
+              </option>
             </select>
             <div class="invalid-feedback">
               Wybierz kateorię.

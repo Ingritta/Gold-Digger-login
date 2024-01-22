@@ -2,6 +2,13 @@
 
 session_start();
 
+require_once 'database.php';
+
+$userId = 2;
+$name = $_POST['name'];
+
+$usersQuery = $db->query("UPDATE users SET user='$name' WHERE id = 2");
+
 ?>
 
 <!DOCTYPE html>
@@ -99,7 +106,7 @@ session_start();
 
             <div class="form-floating">
                 <input type="text" class="form-control" id="floatingInput" placeholder="Name"
-                    data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="nick" autofocus
+                    data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="name" autofocus
                     required value="">
                 <div id="norton-idsafe-field-styling-divId"
                     style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">

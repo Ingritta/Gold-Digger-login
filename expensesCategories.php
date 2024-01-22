@@ -2,6 +2,12 @@
 
 session_start();
 
+require_once 'database.php';
+
+$usersQuery = $db->query('SELECT expense_category_id, description FROM expenses_categories');
+$expensesCategory = $usersQuery->fetchAll();
+
+
 ?>
 
 <!DOCTYPE html>
@@ -116,42 +122,32 @@ session_start();
       </div>
 
       <table class="table table-dark table-hover">
-        <tr>
-          <th>Id</th>
-          <th>Kategoria</th>
+      <tr>
+          
+          <th><span style="color: #E6B31E">Kategoria</span></th>
           <th></th>
           <th></th>
         </tr>
         <tr>
-          <td>1</td>
-          <td>Wynagordzenie Wynagordzenie Wynagordzenie</td>
-          <td>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-              <a href="./editCategory.php">
-                <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Edytuj</button></a>
-            </div>
-          </td>
-          <td>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./successDataChange.php">
-                <button type="button" class="btn btn-outline-secondary btn-lg px-4">Usuń</button></a>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Zwrot podatku</td>
-          <td>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-              <a href="./editCategory.php">
-                <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Edytuj</button></a>
-            </div>
-          </td>
-          <td>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./successDataChange.php">
-                <button type="button" class="btn btn-outline-secondary btn-lg px-4">Usuń</button></a>
-            </div>
-          </td>
-        </tr>
+          <?php
+          foreach ($expensesCategory as $user) {
+            echo "<td>{$user['description']}</td>"
+              ?>
+            <td>
+              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="./editCategory.php">
+                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Edytuj</button></a>
+              </div>
+            </td>
+            <td>
+              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./successDataChange.php">
+                  <button type="submit" class="btn btn-outline-secondary btn-lg px-4">Usuń</button></a>
+              </div>
+            </td>
+          </tr>
+          <?php
+          ;
+          } ?>
       </table>
     </div>
   </main>
