@@ -2,47 +2,76 @@
 
 session_start();
 
-$userId = 7;
-$description = $_POST['description'];
-$choise = $_POST['category'];
-// $userId = $_POST['userId'];
+if (!isset($_SESSION['logged_id'])) {
 
-require_once "connect.php";
+  $userId = $_SESSION['id'];
 
-mysqli_report(MYSQLI_REPORT_STRICT);
+  require_once 'database.php';
 
-try {
-  $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-  if ($polaczenie->connect_errno != 0) {
-    throw new Exception(mysqli_connect_errno());
-  } else {
+  mysqli_report(MYSQLI_REPORT_STRICT);
 
-    if ($choise == "incomes_categories") {
-      $polaczenie->query("INSERT INTO incomes_categories VALUES (
+  try {
+    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+    if ($polaczenie->connect_errno != 0) {
+      throw new Exception(mysqli_connect_errno());
+    } else {
+
+      $wszystko_OK = true;
+
+      $description = $_POST['description'];
+      if ((strlen($description) < 3) || (strlen($description) > 20)) {
+        $wszystko_OK = false;
+        $_SESSION['e_description'] = "Opis musi posiadać od 3 do 20 znaków!";
+      }
+
+      if ($wszystko_OK == true) {
+        $choise = $_POST['name'];
+        if ($choise == "incomes_categories") {
+          if ($db->query("INSERT INTO incomes_category_assigned_to_users VALUES (
             NULL,
             '$userId',
             '$description'
-)");
-    } else if ($choise == "expenses_categories") {
-      $polaczenie->query("INSERT INTO expenses_categories VALUES (
+)")
+          ) {
+            header('Location: successDataChange.php'); {
+              throw new Exception($polaczenie->error);
+            }
+          }
+
+        } else if ($choise == "expenses_categories") {
+          if (
+            $db->query("INSERT INTO expenses_category_assigned_to_users VALUES (
             NULL,
             '$userId',
             '$description'
-)");
-    } else if ($choise == "payment_method") {
-      $polaczenie->query("INSERT INTO payment_method VALUES (
+)")
+          ) {
+            header('Location: successDataChange.php'); {
+              throw new Exception($polaczenie->error);
+            }
+          }
+        } else if ($choise == "payment_method") {
+          if (
+            $db->query("INSERT INTO payment_method_assigned_to_user VALUES (
           NULL,
           '$userId',
           '$description'
-)");
+)")
+          ) {
+            header('Location: successDataChange.php'); {
+              throw new Exception($polaczenie->error);
+            }
+          }
+        }
+      }
     }
+
+    $polaczenie->close();
+
+  } catch (Exception $e) {
+    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+    echo '<br />Iformacja developerska: ' . $e;
   }
-
-  $polaczenie->close();
-
-} catch (Exception $e) {
-  echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
-  echo '<br />Iformacja developerska: ' . $e;
 }
 ?>
 
@@ -92,7 +121,6 @@ try {
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarsExample03">
         <ul class="navbar-nav me-auto mb-2 mb-sm-0">
           <li class="nav-item dropdown">
@@ -106,11 +134,11 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
+              <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
+              <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
+              <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
+              <li><a class="dropdown-item" href="./choosenPeriodBalance.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./balanceSortedByCategory.php">Według kategorii</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -123,10 +151,10 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./changeEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./changeName.php">Zmiana imienia</a></li>
-              <li><a class="dropdown-item" href="./changePassword.php">Zmiana hasła</a></li>
-              <li><a class="dropdown-item" href="#">Usuń konto</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
+              <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
           </li>
           <ul class="navbar-nav me-auto mb-2 mb-sm-0">
@@ -142,10 +170,9 @@ try {
   <main class="form-signin w-100 m-auto">
     <form method="post">
       <h1 class="h3 mb-3 fw-normal">Wybierz</h1>
-
       <div class="col-12">
-        <label for="category" class="form-label">Do której grupy dodać nową kategorię</label>
-        <select id="category" name="category" class="form-select" required="">
+        <label for="category" class="form-label">gdzie chcesz dodać nową kategorię</label>
+        <select id="category" name="name" class="form-select" required="">
           <option value="incomes_categories">Kategorie przychodów</option>
           <option value="expenses_categories">Kategorie wydatków</option>
           <option value="payment_method">Metody płatności</option>
@@ -154,7 +181,6 @@ try {
           Wybierz kateorię.
         </div>
       </div>
-
       <div class="col-12">
         <div class="input-group has-validation">
           <span class="input-group-text">
@@ -170,11 +196,15 @@ try {
             Proszę uzupełnić informację.
           </div>
         </div>
+        <?php
+        if (isset($_SESSION['e_description'])) {
+          echo '<div class="error">' . $_SESSION['e_description'] . '</div>';
+          unset($_SESSION['e_description']);
+        }
+        ?>
       </div>
-
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="./successDataChange.php">
-          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Dodaj</button></a>
+        <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Dodaj</button></a>
         <a href="./successLogin.php">
           <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
       </div>

@@ -4,17 +4,26 @@ session_start();
 
 require_once 'database.php';
 
-// $userId = 2;
-// $incomeId = $_POST['income_id'];
-// $date = $_POST['date'];
-// $amount = $_POST['amount'];
-// $choise = $_POST['category'];
-// $comment = $_POST['comment'];
+$userId = $_SESSION['id'];
 
-$usersQuery = $db->query('SELECT income_id, date, amount, category, comment  FROM incomes');
+$usersQuery = $db->query
+(
+  "SELECT date, amount, category, comment 
+FROM incomes 
+WHERE incomes.user_id = $userId
+-- AND incomes.date BETWEEN :startDate AND :endDate"
+);
+
 $incomes = $usersQuery->fetchAll();
 
-$usersQuery = $db->query('SELECT expense_id, date, amount, category, comment, payment_method FROM expenses');
+$usersQuery = $db->query
+(
+  "SELECT date, amount, category, comment, 'payment_method' 
+FROM expenses 
+WHERE expenses.user_id = $userId
+-- AND incomes.date BETWEEN :startDate AND :endDate"
+);
+
 $expenses = $usersQuery->fetchAll();
 
 ?>
@@ -68,7 +77,6 @@ $expenses = $usersQuery->fetchAll();
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarsExample03">
         <ul class="navbar-nav me-auto mb-2 mb-sm-0">
           <li class="nav-item dropdown">
@@ -82,11 +90,11 @@ $expenses = $usersQuery->fetchAll();
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
+              <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
+              <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
+              <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
+              <li><a class="dropdown-item" href="./choosenPeriodBalance.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./balanceSortedByCategory.php">Według kategorii</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -99,10 +107,10 @@ $expenses = $usersQuery->fetchAll();
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./changeEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./changeName.php">Zmiana imienia</a></li>
-              <li><a class="dropdown-item" href="./changePassword.php">Zmiana hasła</a></li>
-              <li><a class="dropdown-item" href="#">Usuń konto</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
+              <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
           </li>
           <ul class="navbar-nav me-auto mb-2 mb-sm-0">
@@ -116,7 +124,6 @@ $expenses = $usersQuery->fetchAll();
   </nav>
 
   <main class="form-signin w-100 m-auto">
-
     <button type="submit" class="btn btn-primary w-100 py-2">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down"
         viewBox="0 0 16 16">
@@ -126,7 +133,6 @@ $expenses = $usersQuery->fetchAll();
       </svg>
       Sortuj według kwoty
     </button>
-
     <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
     <div>
       <table class="table table-dark table-hover">
@@ -166,13 +172,15 @@ $expenses = $usersQuery->fetchAll();
           ;
           } ?>
       </table>
+      <div>
+        <p class="lead mb-4">Zasoby Twojego skarba zwiększyły się o: <b><span style="color: #E6B31E">zł</span></b>.
+        </p>
+      </div>
     </div>
-
     <h4 class="mb-3">Wydatki</h4>
     <div>
       <table class="table table-dark table-hover">
         <tr>
-
           <th><span style="color: #E6B31E">Data</span></th>
           <th><span style="color: #E6B31E">Kwota</span></th>
           <th><span style="color: #E6B31E">Kategoria</span></th>
@@ -209,17 +217,15 @@ $expenses = $usersQuery->fetchAll();
           <?php
           ;
           } ?>
-
       </table>
+      <div>
+        <p class="lead mb-4">Zasoby Twojego skarba zmniejszyły się o: <b><span style="color: #E6B31E">zł</span></b>.
+        </p>
+      </div>
     </div>
-
-    <h4 class="mb-3">Podsumowanie</h4>
+    <h4 class="mb-3">Bilans</h4>
     <div>
-
       <p class="lead mb-4">W twoim skarbcu aktualnie znajduje się: <b><span style="color: #E6B31E"> zł</span></b>.</p>
-      </td>
-      </tr>
-      </table>
     </div>
   </main>
 </body>

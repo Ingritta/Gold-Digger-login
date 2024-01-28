@@ -4,7 +4,9 @@ session_start();
 
 require_once 'database.php';
 
-$usersQuery = $db->query('SELECT income_category_id, description FROM incomes_categories');
+$userId = $_SESSION['id'];
+
+$usersQuery = $db->query("SELECT name FROM incomes_category_assigned_to_users WHERE user_id = $userId");
 $incomesCategory = $usersQuery->fetchAll();
 
 ?>
@@ -64,7 +66,6 @@ $incomesCategory = $usersQuery->fetchAll();
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarsExample03">
         <ul class="navbar-nav me-auto mb-2 mb-sm-0">
           <li class="nav-item dropdown">
@@ -78,11 +79,11 @@ $incomesCategory = $usersQuery->fetchAll();
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
+              <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
+              <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
+              <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
+              <li><a class="dropdown-item" href="./choosenPeriodBalance.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./balanceSortedByCategory.php">Według kategorii</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -95,10 +96,10 @@ $incomesCategory = $usersQuery->fetchAll();
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./changeEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./changeName.php">Zmiana imienia</a></li>
-              <li><a class="dropdown-item" href="./changePassword.php">Zmiana hasła</a></li>
-              <li><a class="dropdown-item" href="#">Usuń konto</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
+              <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
           </li>
           <ul class="navbar-nav me-auto mb-2 mb-sm-0">
@@ -112,7 +113,6 @@ $incomesCategory = $usersQuery->fetchAll();
   </nav>
 
   <main class="form-signin w-100 m-auto">
-
     <h4 class="mb-3">Kategorie przychodów</h4>
     <div>
       <div>
@@ -120,7 +120,6 @@ $incomesCategory = $usersQuery->fetchAll();
           <button class="btn btn-primary w-100 py-2" type="submit"
             data-nlok-ref-guid="aeaf789e-b250-4308-f552-159fdf94865d">Dodaj nową kategorię przychodu</button></a>
       </div>
-
       <table class="table table-dark table-hover">
         <tr>
           <th><span style="color: #E6B31E">Kategoria</span></th>
@@ -130,16 +129,16 @@ $incomesCategory = $usersQuery->fetchAll();
         <tr>
           <?php
           foreach ($incomesCategory as $user) {
-            echo "<td>{$user['description']}</td>"
+            echo "<td>{$user['name']}</td>"
               ?>
             <td>
               <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                 <a href="./editCategory.php">
-                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Edytuj</button></a>
+                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3" name="categoryId">Edytuj</button></a>
               </div>
             </td>
             <td>
-              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./successDataChange.php">
+              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./incomesCategories.php">
                   <button type="submit" class="btn btn-outline-secondary btn-lg px-4">Usuń</button></a>
               </div>
             </td>
@@ -149,7 +148,6 @@ $incomesCategory = $usersQuery->fetchAll();
           } ?>
       </table>
     </div>
-
     </table>
     </div>
   </main>

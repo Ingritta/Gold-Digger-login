@@ -4,16 +4,6 @@ session_start();
 
 require_once 'database.php';
 
-$userId = 2;
-$date = $_POST['date'];
-$amount = $_POST['amount'];
-$choise = $_POST['category'];
-$comment = $_POST['comment'];
-$paymentMethod = $_POST['paymentMethod'];
-
-$usersQuery = $db->query('SELECT description FROM expenses_categories');
-$category = $usersQuery->fetchAll();
-
 mysqli_report(MYSQLI_REPORT_STRICT);
 
 try {
@@ -22,15 +12,63 @@ try {
     throw new Exception(mysqli_connect_errno());
   } else {
 
-    $polaczenie->query("INSERT INTO expenses VALUES (
-                    NULL,
-                    '$userId',
-                    '$date',
-                    '$amount',
-                    '$choise',
-                    '$comment',
-                    '$paymentMethod'
-                    )");
+    $wszystko_OK = true;
+
+    $userId = $_SESSION['id'];
+    $date = $_POST['date'];
+    $amount = $_POST['amount'];
+    $choise = $_POST['category'];
+    $comment = $_POST['comment'];
+    $paymentMethod = $_POST['paymentMethod'];
+
+    if ($date == '') {
+      $wszystko_OK = false;
+      $_SESSION['e_date'] = "Proszę wybrać datę!";
+    }
+
+    if ($date < '2000-01-01') {
+      $wszystko_OK = false;
+      $_SESSION['e_date'] = "Podano niprawidłową datę!";
+    }
+
+    if ($amount == '') {
+      $wszystko_OK = false;
+      $_SESSION['e_amount'] = "Proszę wpisać ilość!";
+    }
+
+    if ($choise == 'Wybierz...') {
+      $wszystko_OK = false;
+      $_SESSION['e_choise'] = "Proszę wybrać kategorię!";
+    }
+
+    $pattern = '/[^\wżźćńółęąśŻŹĆĄŚĘŁÓŃ ]/i';
+    $result = preg_match($pattern, $comment);
+
+    if ($result == 1) {
+      $wszystko_OK = false;
+      $_SESSION['e_expense_comment'] = "Proszę używać wyłącznie liter, cyfr i spacji!";
+    }
+
+    $usersQuery = $db->query('SELECT name FROM expenses_category_assigned_to_users');
+    $category = $usersQuery->fetchAll();
+
+    if ($wszystko_OK == true) {
+      if (
+        $db->query("INSERT INTO expenses VALUES (
+        NULL,
+        '$userId',
+        '$date',
+        '$amount',
+        '$choise',
+        '$comment',
+        '$paymentMethod'
+        )")
+      ) {
+        header('Location: successDataChange.php'); {
+          throw new Exception($polaczenie->error);
+        }
+      }
+    }
   }
 
   $polaczenie->close();
@@ -74,6 +112,10 @@ try {
     .mb-3 {
       margin-top: 3rem;
     }
+
+    .error {
+      color: #E6B31E;
+    }
   </style>
 </head>
 
@@ -86,7 +128,6 @@ try {
         aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarsExample03">
         <ul class="navbar-nav me-auto mb-2 mb-sm-0">
           <li class="nav-item dropdown">
@@ -100,11 +141,11 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./balance.php">Bieżący miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Poprzedni miesiąc</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Bieżący rok</a></li>
-              <li><a class="dropdown-item" href="./choosePeriod.php">Wybór ręczny dat</a></li>
-              <li><a class="dropdown-item" href="./balance.php">Według kategorii</a></li>
+              <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
+              <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
+              <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
+              <li><a class="dropdown-item" href="./choosenPeriodBalance.php">Wybór ręczny dat</a></li>
+              <li><a class="dropdown-item" href="./balanceSortedByCategory.php">Według kategorii</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -117,10 +158,10 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./changeEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./changeName.php">Zmiana imienia</a></li>
-              <li><a class="dropdown-item" href="./changePassword.php">Zmiana hasła</a></li>
-              <li><a class="dropdown-item" href="#">Usuń konto</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
+              <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
           </li>
           <ul class="navbar-nav me-auto mb-2 mb-sm-0">
@@ -134,13 +175,10 @@ try {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-
     <h4 class="mb-3">Szczegóły transakcji</h4>
     <div class="col-md-7 col-lg-8">
-
       <form class="needs-validation" novalidate="" method="post">
         <div class="row g-3">
-
           <div class="col-12">
             <label for="goal" class="form-label">Data</label>
             <div class="input-group has-validation">
@@ -152,12 +190,14 @@ try {
                 </svg>
               </span>
               <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="date">
-              <div class="invalid-feedback">
-                Proszę uzupełnić informację.
-              </div>
             </div>
+            <?php
+            if (isset($_SESSION['e_date'])) {
+              echo '<div class="error">' . $_SESSION['e_date'] . '</div>';
+              unset($_SESSION['e_date']);
+            }
+            ?>
           </div>
-
           <div class="col-12">
             <label for="goal" class="form-label">Kwota</label>
             <div class="input-group has-validation">
@@ -169,28 +209,32 @@ try {
                 </svg>
               </span>
               <input type="number" class="form-control" id="goal" placeholder="Kwota" required="" name="amount">
-              <div class="invalid-feedback">
-                Proszę uzupełnić informację.
-              </div>
             </div>
+            <?php
+            if (isset($_SESSION['e_amount'])) {
+              echo '<div class="error">' . $_SESSION['e_amount'] . '</div>';
+              unset($_SESSION['e_amount']);
+            }
+            ?>
           </div>
-
           <div class="col-12">
             <label for="category" class="form-label">Kategoria</label>
             <select id="category" class="form-select" name="category" required="">
               <option>Wybierz...
                 <?php
                 foreach ($category as $user) {
-                  echo "<option>{$user['description']}</option>";
+                  echo "<option>{$user['name']}</option>";
                 }
                 ?>
               </option>
             </select>
-            <div class="invalid-feedback">
-              Wybierz kateorię.
-            </div>
+            <?php
+            if (isset($_SESSION['e_choise'])) {
+              echo '<div class="error">' . $_SESSION['e_choise'] . '</div>';
+              unset($_SESSION['e_choise']);
+            }
+            ?>
           </div>
-
           <div class="col-12">
             <label for="comment" class="form-label">Komentarz</label>
             <div class="input-group has-validation">
@@ -202,16 +246,19 @@ try {
                 </svg>
               </span>
               <input type="text" class="form-control" id="goal" placeholder="Komentarz" required="" name="comment">
-              <div class="invalid-feedback">
-                Proszę uzupełnić informację.
-              </div>
             </div>
+            <?php
+            if (isset($_SESSION['e_expense_comment'])) {
+              echo '<div class="error">' . $_SESSION['e_expense_comment'] . '</div>';
+              unset($_SESSION['e_expense_comment']);
+            }
+            ?>
           </div>
-
           <h4 class="mb-3">Płatność</h4>
           <div class="my-3">
             <div class="form-check">
-              <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required="" value="Gotówka">
+              <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required=""
+                value="Gotówka">
               <label class="form-check-label" for="cash">Gotówka</label>
             </div>
             <div class="form-check">

@@ -8,7 +8,8 @@ if ((!isset($_POST['user'])) || (!isset($_POST['haslo']))) {
   exit();
 }
 
-require_once "connect.php";
+require_once 'database.php';
+
 mysqli_report(MYSQLI_REPORT_STRICT);
 
 try {
@@ -60,7 +61,6 @@ try {
     } else {
       throw new Exception($polaczenie->error);
     }
-
     $polaczenie->close();
   }
 

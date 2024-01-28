@@ -16,26 +16,26 @@ if (isset($_POST['email'])) {
         $wszystko_OK = false;
         $_SESSION['e_nick'] = "Nick może składać się wyłącznie z liter i cyfr (bez polskich znaków).";
     }
-    
+
     $email = $_POST['email'];
     $emailB = filter_var($email, FILTER_SANITIZE_EMAIL);
 
     if ((filter_var($emailB, FILTER_VALIDATE_EMAIL) == false) || ($emailB != $email)) {
         $wszystko_OK = false;
-        $_SESSION['e_email'] = "Podaj poprawny email.";
+        $_SESSION['e_email'] = "Podaj poprawny email!";
     }
-    
+
     $haslo1 = $_POST['haslo1'];
     $haslo2 = $_POST['haslo2'];
 
     if ((strlen($haslo1) < 8) || (strlen($haslo1) > 20)) {
         $wszystko_OK = false;
-        $_SESSION['e_haslo'] = "Hasło musi posiadać od 8 do 20 znaków.";
+        $_SESSION['e_haslo'] = "Hasło musi posiadać od 8 do 20 znaków!";
     }
 
     if ($haslo1 != $haslo2) {
         $wszystko_OK = false;
-        $_SESSION['e_haslo'] = "Podane hasła nie są identyczne.";
+        $_SESSION['e_haslo'] = "Podane hasła nie są identyczne!";
     }
 
     $haslo_hash = password_hash($haslo1, PASSWORD_DEFAULT);
@@ -70,7 +70,7 @@ if (isset($_POST['email'])) {
         if ($polaczenie->connect_errno != 0) {
             throw new Exception(mysqli_connect_errno());
         } else {
-            
+
             $rezultat = $polaczenie->query("SELECT id FROM users WHERE email='$email'");
 
             if (!$rezultat)
@@ -132,7 +132,7 @@ if (isset($_POST['email'])) {
         integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/style.css" />
     <script src="https://www.google.com/recaptcha/api.js"></script>
-    
+
     <style>
         body {
             background-image: url("./images/gold-ring-1.jpg");
@@ -145,7 +145,7 @@ if (isset($_POST['email'])) {
         }
 
         .mb-3 {
-            margin-top: 11rem;
+            margin-top: 5rem;
         }
     </style>
 </head>
@@ -171,7 +171,6 @@ if (isset($_POST['email'])) {
     <main class="form-signin w-100 m-auto">
         <form method="post">
             <h1 class="h3 mb-3 fw-normal">Podaj dane użytkownika</h1>
-
             <div class="form-floating">
                 <input type="text" class="form-control" id="floatingInput" placeholder="Name"
                     data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="nick" autofocus
@@ -191,7 +190,6 @@ if (isset($_POST['email'])) {
                 </div>
                 <label for="floatingInput">Imię</label>
             </div>
-
             <?php
             if (isset($_SESSION['e_nick'])) {
                 echo '<div class="error">' . $_SESSION['e_nick'] . '</div>';
@@ -243,7 +241,6 @@ if (isset($_POST['email'])) {
                 </div>
                 <label for="floatingPassword">Hasło</label>
             </div>
-
             <?php
             if (isset($_SESSION['e_haslo'])) {
                 echo '<div class="error">' . $_SESSION['e_haslo'] . '</div>';
@@ -271,7 +268,8 @@ if (isset($_POST['email'])) {
                 <label for="floatingPassword">Powtórz hasło</label>
             </div>
             <label>
-                <input type="checkbox" name="regulamin" /><span style="color: #CACACA">Akceptuję regulamin</span><br /><br />
+                <input type="checkbox" name="regulamin" /><span style="color: #CACACA">Akceptuję
+                    regulamin</span><br /><br />
                 <?php
                 if (isset($_SESSION['fr_regulamin'])) {
                     unset($_SESSION['fr_regulamin']);
@@ -284,7 +282,6 @@ if (isset($_POST['email'])) {
                 unset($_SESSION['e_regulamin']);
             }
             ?>
-
             <div class="g-recaptcha" data-theme="dark" data-sitekey="6LcdF08pAAAAABxZ1HYzQn0WhGAR9DY5Rw8FgXjS"></div>
             <br />
 
@@ -294,13 +291,10 @@ if (isset($_POST['email'])) {
                 unset($_SESSION['e_odpowiedz']);
             }
             ?>
-
             <button class="btn btn-primary w-100 py-2" type="submit"
                 data-nlok-ref-guid="aeaf789e-b250-4308-f552-159fdf94865d">Zarejestruj się</button>
-
         </form>
     </main>
-
 </body>
 
 </html>

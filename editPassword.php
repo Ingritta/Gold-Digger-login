@@ -2,52 +2,46 @@
 
 session_start();
 
-if (!isset($_SESSION['logged_id'])) {
+require_once 'database.php';
 
-  $userId = $_SESSION['id'];
+mysqli_report(MYSQLI_REPORT_STRICT);
 
-  require_once 'database.php';
+try {
+  $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
 
-  mysqli_report(MYSQLI_REPORT_STRICT);
+  if ($polaczenie->connect_errno != 0) {
+    throw new Exception(mysqli_connect_errno());
 
-  try {
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-    if ($polaczenie->connect_errno != 0) {
-      throw new Exception(mysqli_connect_errno());
-    } else {
+  } else {
 
-      $wszystko_OK = true;
+    $wszystko_OK = true;
 
-      $description = $_POST['description'];
-      if ((strlen($description) < 3) || (strlen($description) > 20)) {
-        $wszystko_OK = false;
-        $_SESSION['e_description'] = "Opis musi posiadać od 3 do 20 znaków!";
-      }
+    $userId = $_SESSION['id'];
+    $haslo1 = $_POST['haslo1'];
+    $haslo2 = $_POST['haslo2'];
 
-      if ($wszystko_OK == true) {
+    if ((strlen($haslo1) < 8) || (strlen($haslo1) > 20)) {
+      $wszystko_OK = false;
+      $_SESSION['e_haslo'] = "Hasło musi posiadać od 8 do 20 znaków.";
+    }
 
-        $choise = $_POST['description'];
+    if ($haslo1 != $haslo2) {
+      $wszystko_OK = false;
+      $_SESSION['e_haslo'] = "Podane hasła nie są identyczne.";
+    }
 
-        if (
-          $db->query("INSERT INTO incomes_category_assigned_to_users VALUES (
-            NULL,
-            '$userId',
-            '$description'
-        )")
-        ) {
-          header('Location: successDataChange.php'); {
-            throw new Exception($polaczenie->error);
-          }
+    if ($wszystko_OK == true) {
+      $haslo_hash = password_hash($haslo1, PASSWORD_DEFAULT);
+      if ($db->query("UPDATE users SET pass='$haslo_hash' WHERE id = $userId")) {
+        header('Location: successDataChange.php'); {
+          throw new Exception($polaczenie->error);
         }
       }
     }
-
-    $polaczenie->close();
-
-  } catch (Exception $e) {
-    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
-    echo '<br />Iformacja developerska: ' . $e;
   }
+} catch (Exception $e) {
+  echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
+  echo '<br />Informacja developerska: ' . $e;
 }
 
 ?>
@@ -58,7 +52,7 @@ if (!isset($_SESSION['logged_id'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit category</title>
+  <title>Change password</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
@@ -82,10 +76,6 @@ if (!isset($_SESSION['logged_id'])) {
     .mb-3 {
       margin-top: 11rem;
       text-align: center;
-    }
-
-    .col-12 {
-      margin-bottom: 2.5rem !important;
     }
   </style>
 </head>
@@ -128,7 +118,7 @@ if (!isset($_SESSION['logged_id'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+            <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
@@ -146,30 +136,44 @@ if (!isset($_SESSION['logged_id'])) {
 
   <main class="form-signin w-100 m-auto">
     <form method="post">
-      <h1 class="h3 mb-3 fw-normal">Nowy opis kategorii</h1>
+      <h1 class="h3 mb-3 fw-normal">Podaj nowe hasło</h1>
       <div class="form-floating">
-        <label for="comment" class="form-label"></label>
-        <div class="input-group has-validation">
-          <span class="input-group-text">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
-              viewBox="0 0 16 16">
-              <path
-                d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
-            </svg>
-          </span>
-          <input type="text" class="form-control" id="goal" placeholder="Nowy opis kategorii" required=""
-            name="description">
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password"
+          data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off" name="haslo1" required value="">
+        <div id="norton-idsafe-field-styling-divId"
+          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
+            viewBox="0 0 16 16">
+            <path
+              d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
+            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+          </svg>
         </div>
-        <?php
-        if (isset($_SESSION['e_description'])) {
-          echo '<div class="error">' . $_SESSION['e_description'] . '</div>';
-          unset($_SESSION['e_description']);
-        }
-        ?>
+        <label for="floatingPassword">Hasło</label>
+      </div>
+      <?php
+      if (isset($_SESSION['e_haslo'])) {
+        echo '<div class="error">' . $_SESSION['e_haslo'] . '</div>';
+        unset($_SESSION['e_haslo']);
+      }
+      ?>
+      <div class="form-floating">
+        <input type="password" class="form-control" id="inputPasswordConfirmation" name="haslo2"
+          placeholder="Repeat password" data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off"
+          value="">
+        <div id="norton-idsafe-field-styling-divId"
+          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
+            viewBox="0 0 16 16">
+            <path
+              d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
+            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+          </svg>
+        </div>
+        <label for="floatingPassword">Powtórz hasło</label>
       </div>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <a href="./successDataChange.php">
-          <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
+        <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
         <a href="./successLogin.php">
           <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
       </div>
