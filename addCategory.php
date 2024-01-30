@@ -27,7 +27,8 @@ if (!isset($_SESSION['logged_id'])) {
       if ($wszystko_OK == true) {
         $choise = $_POST['name'];
         if ($choise == "incomes_categories") {
-          if ($db->query("INSERT INTO incomes_category_assigned_to_users VALUES (
+          if (
+            $db->query("INSERT INTO incomes_category_assigned_to_users VALUES (
             NULL,
             '$userId',
             '$description'
@@ -65,9 +66,7 @@ if (!isset($_SESSION['logged_id'])) {
         }
       }
     }
-
     $polaczenie->close();
-
   } catch (Exception $e) {
     echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
     echo '<br />Iformacja developerska: ' . $e;

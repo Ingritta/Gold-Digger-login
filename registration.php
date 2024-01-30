@@ -61,7 +61,7 @@ if (isset($_POST['email'])) {
     if (isset($_POST['regulamin']))
         $_SESSION['fr_regulamin'] = true;
 
-    require_once "connect.php";
+    require_once 'database.php';
 
     mysqli_report(MYSQLI_REPORT_STRICT);
 
@@ -104,6 +104,30 @@ if (isset($_POST['email'])) {
                     '$email'
                     )")
                 ) {
+                    //pobieranie Id nowego uzytkownika
+                    $userId = $polaczenie->query("SELECT id FROM users WHERE user='$nick'");
+
+                    // $userId = mysqli_query($polaczenie, "SELECT id FROM users WHERE user='$nick'");
+                    // if (!$userId) {
+                    //     die(mysqli_error($polaczenie));
+                    // }
+                    // echo $userId;
+
+
+                    //kopiowanie kategorii
+                    $usersQuery = $db->query(
+                        "INSERT INTO incomes_category_assigned_to_users (name) 
+                        SELECT (name) FROM incomes_category_default"
+                    );
+
+                    $usersQuery->fetchAll();
+
+                    $usersQuery = $db->query("UPDATE incomes_category_assigned_to_users 
+                        SET user_id = $userId 
+                        WHERE user_id = 0");
+
+                    $usersQuery->fetchAll();
+
                     $_SESSION['udanarejestracja'] = true;
                     header('Location: successRegistration.php'); {
                         throw new Exception($polaczenie->error);

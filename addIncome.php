@@ -68,7 +68,7 @@ try {
       }
     }
   }
-
+//przenieść pod ifa
   $polaczenie->close();
 
 } catch (Exception $e) {

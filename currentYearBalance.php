@@ -2,29 +2,81 @@
 
 session_start();
 
-require_once 'database.php';
+if (!isset($_SESSION['logged_id'])) {
 
-$userId = $_SESSION['id'];
+  $userId = $_SESSION['id'];
 
-$usersQuery = $db->query
-(
-  "SELECT date, amount, category, comment 
-FROM incomes 
-WHERE incomes.user_id = $userId
--- AND incomes.date BETWEEN :startDate AND :endDate"
-);
+  require_once 'database.php';
 
-$incomes = $usersQuery->fetchAll();
+  mysqli_report(MYSQLI_REPORT_STRICT);
 
-$usersQuery = $db->query
-(
-  "SELECT date, amount, category, comment, 'payment_method' 
-FROM expenses 
-WHERE expenses.user_id = $userId
--- AND incomes.date BETWEEN :startDate AND :endDate"
-);
+  try {
+    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+    if ($polaczenie->connect_errno != 0) {
+      throw new Exception(mysqli_connect_errno());
+    } else {
 
-$expenses = $usersQuery->fetchAll();
+      //$wszystko_OK = true;
+
+      $date = new DateTime();
+
+      $date = date('Y') . "-" . date('01') . "-" . date('01');
+      $end = strtotime($date);
+      $startDate = date('Y-m-d', $end);
+
+      $usersQuery = $db->query
+      (
+        "SELECT date, amount, category, comment 
+        FROM incomes 
+        WHERE incomes.user_id = '$userId'
+        AND incomes.date >= '$startDate'"
+      );
+
+      $incomes = $usersQuery->fetchAll();
+
+      $usersQuery = $db->query
+      (
+        "SELECT date, amount, category, comment, 'payment_method' 
+      FROM expenses 
+      WHERE expenses.user_id = '$userId'
+      AND expenses.date >= '$startDate'"
+      );
+
+      $expenses = $usersQuery->fetchAll();
+
+      $rezultat = $polaczenie->query("SELECT
+      SUM(incomes.amount) AS incomesSum 
+      FROM incomes 
+      WHERE incomes.user_id = $userId
+      AND incomes.date >= '$startDate'");
+
+      $ilu_userow = $rezultat->num_rows;
+
+      if ($ilu_userow > 0) {
+        $wiersz = $rezultat->fetch_assoc();
+        $incomesSum = implode($wiersz);
+      }
+
+      $rezultat = $polaczenie->query("SELECT
+      SUM(expenses.amount) AS expensesSum 
+      FROM expenses 
+      WHERE expenses.user_id = $userId
+      AND expenses.date >= '$startDate'");
+
+      $ilu_userow = $rezultat->num_rows;
+
+      if ($ilu_userow > 0) {
+        $wiersz = $rezultat->fetch_assoc();
+        $expensesSum = implode($wiersz);
+      }
+           //$polaczenie->close();
+    }
+
+  } catch (Exception $e) {
+    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+    echo '<br />Iformacja developerska: ' . $e;
+  }
+}
 
 ?>
 
@@ -62,10 +114,7 @@ $expenses = $usersQuery->fetchAll();
     .my-5 {
       margin-top: 3rem !important;
     }
-
-    a {
-      color: #E6B31E;
-    }
+  
   </style>
 </head>
 
@@ -154,7 +203,7 @@ $expenses = $usersQuery->fetchAll();
             <td>
               <a href="./editIncome.php">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                  class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
                   <path
                     d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
                 </svg>
@@ -162,7 +211,7 @@ $expenses = $usersQuery->fetchAll();
             <td>
               <a href="./successDataChange.php">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                  class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
                   <path
                     d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                 </svg>
@@ -173,7 +222,7 @@ $expenses = $usersQuery->fetchAll();
           } ?>
       </table>
       <div>
-        <p class="lead mb-4">Zasoby Twojego skarba zwiększyły się o: <b><span style="color: #E6B31E">zł</span></b>.
+        <p class="lead mb-4">Zasoby Twojego skarba zwiększyły się o: <?php echo $incomesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
@@ -200,7 +249,7 @@ $expenses = $usersQuery->fetchAll();
             <td>
               <a href="./editIncome.php">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                  class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
                   <path
                     d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
                 </svg>
@@ -208,7 +257,7 @@ $expenses = $usersQuery->fetchAll();
             <td>
               <a href="./successDataChange.php">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                  class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                  class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
                   <path
                     d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                 </svg>
@@ -219,13 +268,13 @@ $expenses = $usersQuery->fetchAll();
           } ?>
       </table>
       <div>
-        <p class="lead mb-4">Zasoby Twojego skarba zmniejszyły się o: <b><span style="color: #E6B31E">zł</span></b>.
+        <p class="lead mb-4">Zasoby Twojego skarba zmniejszyły się o: <?php echo $expensesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
     <h4 class="mb-3">Bilans</h4>
     <div>
-      <p class="lead mb-4">W twoim skarbcu aktualnie znajduje się: <b><span style="color: #E6B31E"> zł</span></b>.</p>
+      <p class="lead mb-4">W danym okresie bilans wynosił: <?php echo $incomesSum - $expensesSum; ?> <b><span style="color: #E6B31E"> zł</span></b>.</p>
     </div>
   </main>
 </body>
