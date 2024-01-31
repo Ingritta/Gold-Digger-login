@@ -2,6 +2,11 @@
 
 session_start();
 
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
+
 if (!isset($_SESSION['logged_id'])) {
 
   $userId = $_SESSION['id'];
@@ -11,8 +16,8 @@ if (!isset($_SESSION['logged_id'])) {
   mysqli_report(MYSQLI_REPORT_STRICT);
 
   try {
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-    if ($polaczenie->connect_errno != 0) {
+    $connection = new mysqli($host, $db_user, $db_password, $db_name);
+    if ($connection->connect_errno != 0) {
       throw new Exception(mysqli_connect_errno());
     } else {
 
@@ -20,16 +25,14 @@ if (!isset($_SESSION['logged_id'])) {
 
       $date = new DateTime();
 
-      $date = date('Y') . "-" . date('01') . "-" . date('01');
-      $end = strtotime($date);
-      $startDate = date('Y-m-d', $end);
+      $startDate = date('Y') . "-" . "%" . "-" . "%";
 
       $usersQuery = $db->query
       (
         "SELECT date, amount, category, comment 
         FROM incomes 
         WHERE incomes.user_id = '$userId'
-        AND incomes.date >= '$startDate'"
+        AND incomes.date LIKE '$startDate' ORDER BY incomes.date ASC"
       );
 
       $incomes = $usersQuery->fetchAll();
@@ -39,37 +42,50 @@ if (!isset($_SESSION['logged_id'])) {
         "SELECT date, amount, category, comment, 'payment_method' 
       FROM expenses 
       WHERE expenses.user_id = '$userId'
-      AND expenses.date >= '$startDate'"
+      AND expenses.date LIKE '$startDate' ORDER BY expenses.date ASC"
       );
 
       $expenses = $usersQuery->fetchAll();
 
-      $rezultat = $polaczenie->query("SELECT
-      SUM(incomes.amount) AS incomesSum 
+      $result = $connection->query(
+        "SELECT SUM(incomes.amount) AS incomesSum 
       FROM incomes 
       WHERE incomes.user_id = $userId
-      AND incomes.date >= '$startDate'");
+      AND incomes.date >= '$startDate'"
+      );
 
-      $ilu_userow = $rezultat->num_rows;
-
-      if ($ilu_userow > 0) {
-        $wiersz = $rezultat->fetch_assoc();
-        $incomesSum = implode($wiersz);
+      $sum = $result->num_rows;
+      if ($sum > 0) {
+        $row = $result->fetch_assoc();
+        $incomesSum = implode($row);
       }
 
-      $rezultat = $polaczenie->query("SELECT
+      $result = $connection->query("SELECT
       SUM(expenses.amount) AS expensesSum 
       FROM expenses 
       WHERE expenses.user_id = $userId
       AND expenses.date >= '$startDate'");
 
-      $ilu_userow = $rezultat->num_rows;
-
-      if ($ilu_userow > 0) {
-        $wiersz = $rezultat->fetch_assoc();
-        $expensesSum = implode($wiersz);
+      $sum = $result->num_rows;
+      if ($sum > 0) {
+        $row = $result->fetch_assoc();
+        $expensesSum = implode($row);
       }
-           //$polaczenie->close();
+
+      if ($incomesSum > 0 && $expensesSum > 0) {
+        $balance = $incomesSum - $expensesSum;
+      } else if ($incomesSum <= 0 && $expensesSum >= 0) {
+        $incomesSum = 0;
+        $balance = 0 - $expensesSum;
+      } else if ($incomesSum >= 0 && $expensesSum <= 0) {
+        $expensesSum = 0;
+        $balance = $incomesSum;
+      } else if ($incomesSum <= 0 && $expensesSum <= 0) {
+        $incomesSum = 0;
+        $expensesSum = 0;
+        $balance = 0;
+      }
+      $connection->close();
     }
 
   } catch (Exception $e) {
@@ -114,14 +130,13 @@ if (!isset($_SESSION['logged_id'])) {
     .my-5 {
       margin-top: 3rem !important;
     }
-  
   </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Gold Digger</a>
+      <a class="navbar-brand" href="./index.php">Gold Digger</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -151,6 +166,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -173,15 +189,6 @@ if (!isset($_SESSION['logged_id'])) {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <button type="submit" class="btn btn-primary w-100 py-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down"
-        viewBox="0 0 16 16">
-        <path
-          d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z">
-        </path>
-      </svg>
-      Sortuj według kwoty
-    </button>
     <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
     <div>
       <table class="table table-dark table-hover">
@@ -222,7 +229,8 @@ if (!isset($_SESSION['logged_id'])) {
           } ?>
       </table>
       <div>
-        <p class="lead mb-4">Zasoby Twojego skarba zwiększyły się o: <?php echo $incomesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
+        <p class="lead mb-4">W badanym okresie w skarbcu zdeponowano:
+          <?php echo $incomesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
@@ -268,13 +276,16 @@ if (!isset($_SESSION['logged_id'])) {
           } ?>
       </table>
       <div>
-        <p class="lead mb-4">Zasoby Twojego skarba zmniejszyły się o: <?php echo $expensesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
+        <p class="lead mb-4">W badanym okresie zasoby skarbca zmniejszyły się o:
+          <?php echo $expensesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
     <h4 class="mb-3">Bilans</h4>
     <div>
-      <p class="lead mb-4">W danym okresie bilans wynosił: <?php echo $incomesSum - $expensesSum; ?> <b><span style="color: #E6B31E"> zł</span></b>.</p>
+      <p class="lead mb-4">W danym okresie bilans wynosił:
+        <?php echo $incomesSum - $expensesSum; ?> <b><span style="color: #E6B31E"> zł</span></b>.
+      </p>
     </div>
   </main>
 </body>

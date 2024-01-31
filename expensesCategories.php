@@ -2,6 +2,11 @@
 
 session_start();
 
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
+
 require_once 'database.php';
 
 $userId = $_SESSION['id'];
@@ -61,7 +66,7 @@ $expensesCategory = $usersQuery->fetchAll();
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Gold Digger</a>
+      <a class="navbar-brand" href="./index.php">Gold Digger</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -91,6 +96,7 @@ $expensesCategory = $usersQuery->fetchAll();
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">

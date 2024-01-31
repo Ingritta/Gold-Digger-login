@@ -2,6 +2,11 @@
 
 session_start();
 
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
+
 $userId = $_SESSION['id'];
 
 if (!isset($_SESSION['logged_id'])) {
@@ -103,6 +108,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">

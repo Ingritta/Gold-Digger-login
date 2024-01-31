@@ -120,7 +120,14 @@ if (isset($_POST['email'])) {
                         SELECT (name) FROM incomes_category_default"
                     );
 
-                    $usersQuery->fetchAll();
+                    $numOfusers = $rezultat->num_rows;
+
+                    if ($numOfusers == 1) {
+                        $numOfusers = $rezultat->fetch_assoc();
+                        $userId = implode($numOfusers);
+                    }
+
+                    echo "userid: ". $userId;
 
                     $usersQuery = $db->query("UPDATE incomes_category_assigned_to_users 
                         SET user_id = $userId 

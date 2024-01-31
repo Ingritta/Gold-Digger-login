@@ -2,29 +2,105 @@
 
 session_start();
 
-require_once 'database.php';
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
 
-$userId = 2;
+if (!isset($_SESSION['logged_id'])) {
 
-$usersQuery = $db->query
-(
-  "SELECT date, amount, category, comment 
-FROM incomes 
-WHERE incomes.user_id = $userId
--- AND incomes.date BETWEEN :startDate AND :endDate"
-);
+  $userId = $_SESSION['id'];
 
-$incomes = $usersQuery->fetchAll();
+  require_once 'database.php';
 
-$usersQuery = $db->query
-(
-  "SELECT date, amount, category, comment, 'payment_method' 
-FROM expenses 
-WHERE expenses.user_id = $userId
--- AND incomes.date BETWEEN :startDate AND :endDate"
-);
+  mysqli_report(MYSQLI_REPORT_STRICT);
 
-$expenses = $usersQuery->fetchAll();
+  try {
+    $connection = new mysqli($host, $db_user, $db_password, $db_name);
+    if ($connection->connect_errno != 0) {
+      throw new Exception(mysqli_connect_errno());
+    } else {
+
+      //$wszystko_OK = true;
+      $date = new DateTime();
+
+      $day = date('d');
+      $month = date('m');
+      $year = date('Y');
+
+      $startDate = date('Y') . "-" . $month - 1 . "-" . "%";
+
+      if ($month == 1) {
+        $startDate = $year - 1 . "-" . 12 . "-" . "%";
+      }
+
+      $usersQuery = $db->query
+      (
+        "SELECT date, amount, category, comment 
+        FROM incomes 
+        WHERE incomes.user_id = '$userId'
+        AND incomes.date LIKE '$startDate'"
+      );
+
+      $incomes = $usersQuery->fetchAll();
+
+      $usersQuery = $db->query
+      (
+        "SELECT date, amount, category, comment, 'payment_method' 
+      FROM expenses 
+      WHERE expenses.user_id = '$userId'
+      AND expenses.date LIKE '$startDate'"
+      );
+
+      $expenses = $usersQuery->fetchAll();
+
+      $result = $connection->query(
+        "SELECT SUM(incomes.amount) AS incomesSum 
+      FROM incomes 
+      WHERE incomes.user_id = $userId
+      AND incomes.date LIKE '$startDate'"
+      );
+
+      $sum = $result->num_rows;
+      if ($sum > 0) {
+        $row = $result->fetch_assoc();
+        $incomesSum = implode($row);
+      }
+
+      $result = $connection->query("SELECT
+      SUM(expenses.amount) AS expensesSum 
+      FROM expenses 
+      WHERE expenses.user_id = $userId
+      AND expenses.date LIKE '$startDate'");
+
+      $sum = $result->num_rows;
+      if ($sum > 0) {
+        $row = $result->fetch_assoc();
+        $expensesSum = implode($row);
+      }
+
+      if ($incomesSum > 0 && $expensesSum > 0) {
+        $balance = $incomesSum - $expensesSum;
+      } else if ($incomesSum <= 0 && $expensesSum >= 0) {
+        $incomesSum = 0;
+        $balance = 0 - $expensesSum;
+      } else if ($incomesSum >= 0 && $expensesSum <= 0) {
+        $expensesSum = 0;
+        $balance = $incomesSum;
+      } else if ($incomesSum <= 0 && $expensesSum <= 0) {
+        $incomesSum = 0;
+        $expensesSum = 0;
+        $balance = 0;
+      }
+      $connection->close();
+    }
+
+  } catch (Exception $e) {
+    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+    echo '<br />Iformacja developerska: ' . $e;
+  }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -61,14 +137,13 @@ $expenses = $usersQuery->fetchAll();
     .my-5 {
       margin-top: 3rem !important;
     }
-
-   </style>
+  </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Gold Digger</a>
+      <a class="navbar-brand" href="./index.php">Gold Digger</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -98,6 +173,7 @@ $expenses = $usersQuery->fetchAll();
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -120,15 +196,6 @@ $expenses = $usersQuery->fetchAll();
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <button type="submit" class="btn btn-primary w-100 py-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down"
-        viewBox="0 0 16 16">
-        <path
-          d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z">
-        </path>
-      </svg>
-      Sortuj według kwoty
-    </button>
     <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
     <div>
       <table class="table table-dark table-hover">
@@ -169,7 +236,8 @@ $expenses = $usersQuery->fetchAll();
           } ?>
       </table>
       <div>
-        <p class="lead mb-4">Zasoby Twojego skarba zwiększyły się o: <b><span style="color: #E6B31E">zł</span></b>.
+        <p class="lead mb-4">W badanym okresie w skarbcu zdeponowano:
+          <?php echo $incomesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
@@ -215,13 +283,16 @@ $expenses = $usersQuery->fetchAll();
           } ?>
       </table>
       <div>
-        <p class="lead mb-4">Zasoby Twojego skarba zmniejszyły się o: <b><span style="color: #E6B31E">zł</span></b>.
+        <p class="lead mb-4">W badanym okresie zasoby skarbca zmniejszyły się o:
+          <?php echo $expensesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
     <h4 class="mb-3">Bilans</h4>
     <div>
-      <p class="lead mb-4">W twoim skarbcu aktualnie znajduje się: <b><span style="color: #E6B31E"> zł</span></b>.</p>
+      <p class="lead mb-4">W danym okresie bilans wynosił:
+        <?php echo $balance; ?><b><span style="color: #E6B31E"> zł</span></b>.
+      </p>
     </div>
   </main>
 </body>

@@ -2,32 +2,85 @@
 
 session_start();
 
-require_once 'database.php';
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
 
-$userId = $_SESSION['id'];
+if (!isset($_SESSION['logged_id'])) {
 
-$usersQuery = $db->query ("SELECT incomes_category_assigned_to_users.name, 
-SUM(incomes.amount) AS incomesSum 
-FROM incomes_category_assigned_to_users, incomes 
-WHERE incomes.user_id = $userId
-AND incomes_category_assigned_to_users.name = incomes.category
--- AND incomes.date BETWEEN :startDate AND :endDate
-GROUP BY incomes_category_assigned_to_users.name 
-ORDER BY incomesSum DESC");
+  $userId = $_SESSION['id'];
 
-$incomes = $usersQuery->fetchAll();
+  require_once 'database.php';
 
-$usersQuery = $db->query
-("SELECT expenses_category_assigned_to_users.name, 
-SUM(expenses.amount) AS expensesSum 
-FROM expenses_category_assigned_to_users, expenses 
-WHERE expenses.user_id = $userId
-AND expenses_category_assigned_to_users.name = expenses.category
--- AND incomes.date BETWEEN :startDate AND :endDate
-GROUP BY expenses_category_assigned_to_users.name 
-ORDER BY expensesSum DESC");
+  mysqli_report(MYSQLI_REPORT_STRICT);
 
-$expenses = $usersQuery->fetchAll();
+  try {
+    $connection = new mysqli($host, $db_user, $db_password, $db_name);
+    if ($connection->connect_errno != 0) {
+      throw new Exception(mysqli_connect_errno());
+    } else {
+
+      $wszystko_OK = true;
+
+      $date = new DateTime();
+
+      $date = date('Y') . "-" . date('m') . "-" . date('d');
+
+      $startDate = $_POST['startDate'];
+      $endDate = $_POST['endDate'];
+
+      if ($startDate == '' || $endDate == '') {
+        $wszystko_OK = false;
+        $_SESSION['e_date'] = "Proszę wybrać datę!";
+      }
+
+      if ($startDate < '2000-01-01' || $endDate < '2000-01-01') {
+        $wszystko_OK = false;
+        $_SESSION['e_date'] = "Podano nieprawidłową datę!";
+      }
+
+      if ($startDate > $date || $endDate > $date) {
+        $wszystko_OK = false;
+        $_SESSION['e_date'] = "Data znajduje się poza zakresem!";
+      }
+
+      $usersQuery = $db->query
+      (
+        "SELECT incomes_category_assigned_to_users.name, 
+        SUM(incomes.amount) AS incomesSum 
+        FROM incomes_category_assigned_to_users, incomes 
+        WHERE incomes.user_id = 2
+        AND incomes_category_assigned_to_users.name = incomes.category
+        AND incomes.date BETWEEN '$startDate' AND '$endDate' 
+        GROUP BY incomes_category_assigned_to_users.name
+        ORDER BY incomesSum DESC"
+      );
+
+      $incomes = $usersQuery->fetchAll();
+
+      $usersQuery = $db->query
+      (
+        "SELECT expenses_category_assigned_to_users.name, 
+        SUM(expenses.amount) AS expensesSum 
+        FROM expenses_category_assigned_to_users, expenses 
+        WHERE expenses.user_id = 2
+        AND expenses_category_assigned_to_users.name = expenses.category
+        AND expenses.date BETWEEN '$startDate' AND '$endDate'
+        GROUP BY expenses_category_assigned_to_users.name 
+        ORDER BY expensesSum DESC"
+      );
+
+      $expenses = $usersQuery->fetchAll();
+
+      $connection->close();
+    }
+
+  } catch (Exception $e) {
+    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+    echo '<br />Iformacja developerska: ' . $e;
+  }
+}
 
 ?>
 
@@ -66,13 +119,17 @@ $expenses = $usersQuery->fetchAll();
       margin-top: 3rem !important;
     }
 
+    .btn {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
   </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="Third navbar example">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Gold Digger</a>
+      <a class="navbar-brand" href="./index.php">Gold Digger</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03"
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -103,12 +160,13 @@ $expenses = $usersQuery->fetchAll();
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
@@ -124,49 +182,93 @@ $expenses = $usersQuery->fetchAll();
     </div>
   </nav>
 
+
   <main class="form-signin w-100 m-auto">
-    <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
-    <div>
-      <table class="table table-dark table-hover">
-        <tr>
-          <th><span style="color: #E6B31E">Suma</span></th>
-          <th><span style="color: #E6B31E">Kategoria</span></th>
-        </tr>
-        <tr>
-          <?php
-          foreach ($incomes as $user) {
-            echo "<td>{$user['incomesSum']}</td>
-              <td>{$user['name']}
-            " ?>
-          </tr>
-          <?php
-          ;
-          } ?>
-      </table>
+    <form class="col-12 mb-3" method="post">
+      <h4 class="mb-3" style="margin-top: 1rem">Wybierz daty</h4>
+      <div class="col-12 mb-3">
+        <label for="goal" class="form-label">Data początkowa</label>
+        <div class="input-group has-validation">
+          <span class="input-group-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
+              viewBox="0 0 16 16">
+              <path
+                d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
+            </svg>
+          </span>
+          <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="startDate">
         </div>
-    <h4 class="mb-3">Wydatki</h4>
-    <div>
-      <table class="table table-dark table-hover">
-        <tr>
-          <th><span style="color: #E6B31E">Suma</span></th>
-          <th><span style="color: #E6B31E">Kategoria</span></th>
-        </tr>
-        <tr>
-          <?php
-          foreach ($expenses as $user) {
-            echo "<td>{$user['expensesSum']}</td>
+        <?php
+        if (isset($_SESSION['e_date'])) {
+          echo '<div class="error">' . $_SESSION['e_date'] . '</div>';
+          unset($_SESSION['e_date']);
+        }
+        ?>
+      </div>
+      <div class="col-12">
+        <label for="goal" class="form-label">Data końcowa</label>
+        <div class="input-group has-validation">
+          <span class="input-group-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
+              viewBox="0 0 16 16">
+              <path
+                d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
+            </svg>
+          </span>
+          <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="endDate">
+        </div>
+        <?php
+        if (isset($_SESSION['e_date'])) {
+          echo '<div class="error">' . $_SESSION['e_date'] . '</div>';
+          unset($_SESSION['e_date']);
+        }
+        ?>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down"
+          viewBox="0 0 16 16">
+        </svg>
+        Akceptuj
+      </button>
+      <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
+      <div>
+        <table class="table table-dark table-hover">
+          <tr>
+            <th><span style="color: #E6B31E">Suma</span></th>
+            <th><span style="color: #E6B31E">Kategoria</span></th>
+          </tr>
+          <tr>
+            <?php
+            foreach ($incomes as $user) {
+              echo "<td>{$user['incomesSum']}</td>
               <td>{$user['name']}
             " ?>
+            </tr>
+            <?php
+            ;
+            } ?>
+        </table>
+        <div>
+        </div>
+      </div>
+      <h4 class="mb-3">Wydatki</h4>
+      <div>
+        <table class="table table-dark table-hover">
+          <tr>
+            <th><span style="color: #E6B31E">Suma</span></th>
+            <th><span style="color: #E6B31E">Kategoria</span></th>
           </tr>
-          <?php
-          ;
-          } ?>
-      </table>
-    </div>
-    <h4 class="mb-3">Podsumowanie</h4>
-    <div>
-      <p class="lead mb-4">W twoim skarbcu aktualnie znajduje się: <b><span style="color: #E6B31E"> zł</span></b>.</p>
-    </div>
+          <tr>
+            <?php
+            foreach ($expenses as $user) {
+              echo "<td>{$user['expensesSum']}</td>
+              <td>{$user['name']}
+            " ?>
+            </tr>
+            <?php
+            ;
+            } ?>
+        </table>
   </main>
 </body>
 

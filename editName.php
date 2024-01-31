@@ -2,6 +2,11 @@
 
 session_start();
 
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
+
 if (!isset($_SESSION['logged_id'])) {
 
   require_once 'database.php';
@@ -96,7 +101,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
-            </ul>
+                         </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
@@ -114,6 +119,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">

@@ -2,6 +2,11 @@
 
 session_start();
 
+if (!isset($_SESSION['zalogowany'])) {
+  header('Location: index.php');
+  exit();
+}
+
 if (!isset($_SESSION['logged_id'])) {
 
   $userId = $_SESSION['id'];
@@ -14,11 +19,13 @@ if (!isset($_SESSION['logged_id'])) {
     $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
     if ($polaczenie->connect_errno != 0) {
       throw new Exception(mysqli_connect_errno());
+
     } else {
 
       $wszystko_OK = true;
 
       $description = $_POST['description'];
+      
       if ((strlen($description) < 3) || (strlen($description) > 20)) {
         $wszystko_OK = false;
         $_SESSION['e_description'] = "Opis musi posiadać od 3 do 20 znaków!";
@@ -26,6 +33,7 @@ if (!isset($_SESSION['logged_id'])) {
 
       if ($wszystko_OK == true) {
         $choise = $_POST['name'];
+
         if ($choise == "incomes_categories") {
           if (
             $db->query("INSERT INTO incomes_category_assigned_to_users VALUES (
@@ -145,6 +153,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
+              <li><a class="dropdown-item" href="./addCategory.php">Dodaj kategorię</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -170,12 +179,11 @@ if (!isset($_SESSION['logged_id'])) {
     <form method="post">
       <h1 class="h3 mb-3 fw-normal">Wybierz</h1>
       <div class="col-12">
-        <label for="category" class="form-label">gdzie chcesz dodać nową kategorię</label>
+        <label for="category" class="form-label">którą kategorię chcesz dodać: </label>
         <select id="category" name="name" class="form-select" required="">
           <option value="incomes_categories">Kategorie przychodów</option>
           <option value="expenses_categories">Kategorie wydatków</option>
-          <option value="payment_method">Metody płatności</option>
-        </select>
+                  </select>
         <div class="invalid-feedback">
           Wybierz kateorię.
         </div>
