@@ -46,7 +46,7 @@ if (!isset($_SESSION['logged_id'])) {
 
       $usersQuery = $db->query
       (
-        "SELECT date, amount, category, comment, 'payment_method' 
+        "SELECT date, amount, category, comment, payment_method 
       FROM expenses 
       WHERE expenses.user_id = '$userId'
       AND expenses.date LIKE '$startDate'"

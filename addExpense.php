@@ -12,75 +12,16 @@ require_once 'database.php';
 mysqli_report(MYSQLI_REPORT_STRICT);
 
 try {
-  $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-  if ($polaczenie->connect_errno != 0) {
+  $connection = new mysqli($host, $db_user, $db_password, $db_name);
+
+  if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
   } else {
-
-    $wszystko_OK = true;
-
     $userId = $_SESSION['id'];
-    $date = $_POST['date'];
-    $amount = $_POST['amount'];
-    $choise = $_POST['category'];
-    $comment = $_POST['comment'];
-    $paymentMethod = $_POST['paymentMethod'];
-
-    if ($date == '') {
-      $wszystko_OK = false;
-      $_SESSION['e_date'] = "Proszę wybrać datę!";
-    }
-
-    if ($date < '2000-01-01') {
-      $wszystko_OK = false;
-      $_SESSION['e_date'] = "Podano niprawidłową datę!";
-    }
-
-    if ($amount == '') {
-      $wszystko_OK = false;
-      $_SESSION['e_amount'] = "Proszę wpisać ilość!";
-    }
-
-    if ($choise == 'Wybierz...') {
-      $wszystko_OK = false;
-      $_SESSION['e_choise'] = "Proszę wybrać kategorię!";
-    }
-
-    $pattern = '/[^\wżźćńółęąśŻŹĆĄŚĘŁÓŃ ]/i';
-    $result = preg_match($pattern, $comment);
-
-    if ($result == 1) {
-      $wszystko_OK = false;
-      $_SESSION['e_expense_comment'] = "Proszę używać wyłącznie liter, cyfr i spacji!";
-    }
-
-    $usersQuery = $db->query('SELECT name FROM expenses_category_assigned_to_users');
-    $category = $usersQuery->fetchAll();
-
-    if ($wszystko_OK == true) {
-      if (
-        $db->query("INSERT INTO expenses VALUES (
-        NULL,
-        '$userId',
-        '$date',
-        '$amount',
-        '$choise',
-        '$comment',
-        '$paymentMethod'
-        )")
-      ) {
-        header('Location: successDataChange.php'); {
-          throw new Exception($polaczenie->error);
-        }
-      }
-    }
   }
-
-  $polaczenie->close();
-
 } catch (Exception $e) {
-  echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
-  echo '<br />Iformacja developerska: ' . $e;
+  echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
+  echo '<br />Informacja developerska: ' . $e;
 }
 
 ?>
@@ -116,6 +57,7 @@ try {
 
     .mb-3 {
       margin-top: 3rem;
+      text-align: center;
     }
 
     .error {
@@ -183,7 +125,7 @@ try {
   <main class="form-signin w-100 m-auto">
     <h4 class="mb-3">Szczegóły transakcji</h4>
     <div class="col-md-7 col-lg-8">
-      <form class="needs-validation" novalidate="" method="post">
+      <form method="post" action="addExpenseAction.php">
         <div class="row g-3">
           <div class="col-12">
             <label for="goal" class="form-label">Data</label>
@@ -195,7 +137,12 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="date">
+              <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="date" value="<?php
+              if (isset($_SESSION['fr_date'])) {
+                echo $_SESSION['fr_date'];
+                unset($_SESSION['fr_date']);
+              }
+              ?>">
             </div>
             <?php
             if (isset($_SESSION['e_date'])) {
@@ -214,7 +161,12 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="number" class="form-control" id="goal" placeholder="Kwota" required="" name="amount">
+              <input type="number" class="form-control" id="goal" placeholder="Kwota" required="" name="amount" value="<?php
+              if (isset($_SESSION['fr_amount'])) {
+                echo $_SESSION['fr_amount'];
+                unset($_SESSION['fr_amount']);
+              }
+              ?>">
             </div>
             <?php
             if (isset($_SESSION['e_amount'])) {
@@ -226,13 +178,16 @@ try {
           <div class="col-12">
             <label for="category" class="form-label">Kategoria</label>
             <select id="category" class="form-select" name="category" required="">
-              <option>Wybierz...
-                <?php
-                foreach ($category as $user) {
-                  echo "<option>{$user['name']}</option>";
-                }
-                ?>
-              </option>
+              <?php
+              $result = $connection->query("SELECT name FROM expenses_category_assigned_to_users WHERE user_id = '$userId'");
+
+              while ($categories = $result->fetch_assoc()) { ?>
+                <option value="<?php echo $categories['name'] ?>">
+                  <?php echo "{$categories['name']}" ?>
+                </option>;
+
+              <?php } ?>
+
             </select>
             <?php
             if (isset($_SESSION['e_choise'])) {
@@ -251,7 +206,13 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="text" class="form-control" id="goal" placeholder="Komentarz" required="" name="comment">
+              <input type="text" class="form-control" id="goal" placeholder="Komentarz" name="comment"
+                value="<?php
+                if (isset($_SESSION['fr_comment'])) {
+                  echo $_SESSION['fr_comment'];
+                  unset($_SESSION['fr_comment']);
+                }
+                ?>">
             </div>
             <?php
             if (isset($_SESSION['e_expense_comment'])) {
@@ -260,7 +221,7 @@ try {
             }
             ?>
           </div>
-          <h4 class="mb-3">Płatność</h4>
+          <h4 class="mb-3" style="margin-top: 2rem">Płatność</h4>
           <div class="my-3">
             <div class="form-check">
               <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required=""

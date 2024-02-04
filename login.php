@@ -19,6 +19,10 @@ try {
     throw new Exception(mysqli_connect_errno());
 
   } else {
+       
+    // $currantDate = new DateTime();
+    // $currantDate->format('Y-m-d');
+
     $login = $_POST['user'];
     $password = $_POST['haslo'];
 

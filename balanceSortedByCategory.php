@@ -27,30 +27,16 @@ if (!isset($_SESSION['logged_id'])) {
 
       $date = date('Y') . "-" . date('m') . "-" . date('d');
 
-      $startDate = $_POST['startDate'];
-      $endDate = $_POST['endDate'];
-
-      if ($startDate == '' || $endDate == '') {
-        $wszystko_OK = false;
-        $_SESSION['e_date'] = "Proszę wybrać datę!";
-      }
-
-      if ($startDate < '2000-01-01' || $endDate < '2000-01-01') {
-        $wszystko_OK = false;
-        $_SESSION['e_date'] = "Podano nieprawidłową datę!";
-      }
-
-      if ($startDate > $date || $endDate > $date) {
-        $wszystko_OK = false;
-        $_SESSION['e_date'] = "Data znajduje się poza zakresem!";
-      }
+      $userId = $_SESSION['id'];
+      $startDate = $_SESSION['startDate'];
+      $endDate = $_SESSION['endDate'];
 
       $usersQuery = $db->query
       (
         "SELECT incomes_category_assigned_to_users.name, 
         SUM(incomes.amount) AS incomesSum 
         FROM incomes_category_assigned_to_users, incomes 
-        WHERE incomes.user_id = 2
+        WHERE incomes.user_id = $userId
         AND incomes_category_assigned_to_users.name = incomes.category
         AND incomes.date BETWEEN '$startDate' AND '$endDate' 
         GROUP BY incomes_category_assigned_to_users.name
@@ -64,7 +50,7 @@ if (!isset($_SESSION['logged_id'])) {
         "SELECT expenses_category_assigned_to_users.name, 
         SUM(expenses.amount) AS expensesSum 
         FROM expenses_category_assigned_to_users, expenses 
-        WHERE expenses.user_id = 2
+        WHERE expenses.user_id = $userId
         AND expenses_category_assigned_to_users.name = expenses.category
         AND expenses.date BETWEEN '$startDate' AND '$endDate'
         GROUP BY expenses_category_assigned_to_users.name 
@@ -72,9 +58,9 @@ if (!isset($_SESSION['logged_id'])) {
       );
 
       $expenses = $usersQuery->fetchAll();
-
-      $connection->close();
     }
+
+    $connection->close();
 
   } catch (Exception $e) {
     echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
@@ -182,9 +168,8 @@ if (!isset($_SESSION['logged_id'])) {
     </div>
   </nav>
 
-
   <main class="form-signin w-100 m-auto">
-    <form class="col-12 mb-3" method="post">
+    <form class="col-12 mb-3" method="post" method="choosePeriod.php">
       <h4 class="mb-3" style="margin-top: 1rem">Wybierz daty</h4>
       <div class="col-12 mb-3">
         <label for="goal" class="form-label">Data początkowa</label>
@@ -220,7 +205,7 @@ if (!isset($_SESSION['logged_id'])) {
         <?php
         if (isset($_SESSION['e_date'])) {
           echo '<div class="error">' . $_SESSION['e_date'] . '</div>';
-          unset($_SESSION['e_date']);
+          unset($_SESSION['e_endDate']);
         }
         ?>
       </div>

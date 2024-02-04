@@ -127,8 +127,6 @@ if (isset($_POST['email'])) {
                         $userId = implode($numOfusers);
                     }
 
-                    echo "userid: ". $userId;
-
                     $usersQuery = $db->query("UPDATE incomes_category_assigned_to_users 
                         SET user_id = $userId 
                         WHERE user_id = 0");
@@ -205,7 +203,7 @@ if (isset($_POST['email'])) {
             <div class="form-floating">
                 <input type="text" class="form-control" id="floatingInput" placeholder="Name"
                     data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="nick" autofocus
-                    required value="<?php
+                    required="" value="<?php
                     if (isset($_SESSION['fr_nick'])) {
                         echo $_SESSION['fr_nick'];
                         unset($_SESSION['fr_nick']);

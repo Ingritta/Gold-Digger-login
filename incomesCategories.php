@@ -9,10 +9,20 @@ if (!isset($_SESSION['zalogowany'])) {
 
 require_once 'database.php';
 
-$userId = $_SESSION['id'];
+mysqli_report(MYSQLI_REPORT_STRICT);
 
-$usersQuery = $db->query("SELECT name FROM incomes_category_assigned_to_users WHERE user_id = $userId");
-$incomesCategory = $usersQuery->fetchAll();
+try {
+  $connection = new mysqli($host, $db_user, $db_password, $db_name);
+
+  if ($connection->connect_errno != 0) {
+    throw new Exception(mysqli_connect_errno());
+  } else {
+    $userId = $_SESSION['id'];
+  }
+} catch (Exception $e) {
+  echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
+  echo '<br />Informacja developerska: ' . $e;
+}
 
 ?>
 
@@ -134,9 +144,10 @@ $incomesCategory = $usersQuery->fetchAll();
         </tr>
         <tr>
           <?php
-          foreach ($incomesCategory as $user) {
-            echo "<td>{$user['name']}</td>"
-              ?>
+          $result = $connection->query("SELECT name FROM incomes_category_assigned_to_users WHERE user_id = $userId");
+
+          while ($categories = $result->fetch_assoc()) {
+            echo "<td> {$categories['name']}</td>" ?>
             <td>
               <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                 <a href="./editIncomeCategory.php">

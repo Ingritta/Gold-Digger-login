@@ -37,7 +37,7 @@ if (!isset($_SESSION['logged_id'])) {
           $db->query("UPDATE incomes_category_assigned_to_users SET name = '$description'
         ")
         ) {
-          header('Location: successDataChange.php'); {
+          header('Location: incomesCategories.php'); {
             throw new Exception($polaczenie->error);
           }
         }

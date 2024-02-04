@@ -17,7 +17,27 @@ try {
   if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
   } else {
-    $userId = $_SESSION['id'];
+
+    if (isset($_GET['income_id'])) {
+
+      $incomeId = mysqli_real_escape_string($connection, $_GET['income_id']);
+      echo "incomeid: " . $incomeId = $_GET['income_id'];
+      $query = "SELECT date, amount, category, comment FROM incomes WHERE income_id = '$incomeId'";
+      $query_run = mysqli_query($connection, $query);
+
+      if (mysqli_num_rows($query_run) > 0) {
+        $income = mysqli_fetch_array($query_run);
+        $date = $income['date'];
+        $amount = $income['amount'];
+        $category = $income['category'];
+        $comment = $income['comment'];
+
+        // $_SESSION['fr_date'] = $date;
+        // $_SESSION['fr_amount'] = $amount;
+        // $_SESSION['fr_amount'] = $category;
+        // $_SESSION['fr_comment'] = $comment;
+      }
+    }
   }
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
@@ -64,6 +84,7 @@ try {
       color: #E6B31E;
     }
   </style>
+
 </head>
 
 <body>
@@ -122,9 +143,10 @@ try {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <h4 class="mb-3">Szczegóły transakcji</h4>
+    <h4 class="mb-3">Wprowadź zmiany</h4>
     <div class="col-md-7 col-lg-8">
-      <form method="post" action="addIncomeAction.php">
+      <form method="post" action="editIncomeAction.php">
+        <input type="hidden" class="form-control" name="income_id" value="<?php $incomeId ?>">
         <div class="row g-3">
           <div class="col-12">
             <label for="goal" class="form-label">Data</label>
@@ -136,12 +158,8 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="date" class="form-control" id="goal" placeholder="Data" name="date" required="" value="<?php
-              if (isset($_SESSION['fr_date'])) {
-                echo $_SESSION['fr_date'];
-                unset($_SESSION['fr_date']);
-              }
-              ?>">
+              <input type="date" class="form-control" id="goal" placeholder="Data" name="date" required=""
+                value="<?php $date ?>">
             </div>
             <?php
             if (isset($_SESSION['e_date'])) {
@@ -150,7 +168,6 @@ try {
             }
             ?>
           </div>
-
           <div class="col-12">
             <label for="goal" class="form-label">Kwota</label>
             <div class="input-group has-validation">
@@ -161,12 +178,8 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="number" class="form-control" id="goal" placeholder="Kwota" name="amount" required="" value="<?php
-              if (isset($_SESSION['fr_amount'])) {
-                echo $_SESSION['fr_amount'];
-                unset($_SESSION['fr_amount']);
-              }
-              ?>">
+              <input type="number" class="form-control" id="goal" placeholder="Kwota" name="amount" required=""
+                value="<?php echo $income['amount'] ?>">
             </div>
             <?php
             if (isset($_SESSION['e_amount'])) {
@@ -178,14 +191,13 @@ try {
           <div class="col-12">
             <label for="category" class="form-label">Kategoria</label>
             <select id="category" class="form-select" name="category" required="">
-            <?php
+              <?php
               $result = $connection->query("SELECT name FROM incomes_category_assigned_to_users WHERE user_id = '$userId'");
 
               while ($categories = $result->fetch_assoc()) { ?>
                 <option value="<?php echo $categories['name'] ?>">
                   <?php echo "{$categories['name']}" ?>
                 </option>;
-
               <?php } ?>
             </select>
             <?php
@@ -205,13 +217,8 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="text" class="form-control" id="goal" placeholder="Komentarz" name="comment" 
-                value="<?php
-                if (isset($_SESSION['fr_comment'])) {
-                  echo $_SESSION['fr_comment'];
-                  unset($_SESSION['fr_comment']);
-                }
-                ?>">
+              <input type="text" class="form-control" id="goal" placeholder="Komentarz" name="comment" required=""
+                value="<?php $comment ?>" ?>">
             </div>
             <?php
             if (isset($_SESSION['e_income_comment'])) {
@@ -221,7 +228,7 @@ try {
             ?>
           </div>
           <div class="px-4 py-5 my-5 text-center">
-            <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Dodaj</button></a>
+            <button type="submit" name="editIncome" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
             <a href="./successLogin.php">
               <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
           </div>
@@ -232,9 +239,3 @@ try {
 </body>
 
 </html>
-
-<!-- <?php
-foreach ($category as $user) {
-  echo "<option>{$user['name']}</option>";
-}
-?> -->

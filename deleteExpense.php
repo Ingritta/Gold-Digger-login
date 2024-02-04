@@ -11,14 +11,31 @@ require_once 'database.php';
 
 mysqli_report(MYSQLI_REPORT_STRICT);
 
+$userId = $_SESSION['id'];
+
 try {
   $connection = new mysqli($host, $db_user, $db_password, $db_name);
 
   if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
+
   } else {
-    $userId = $_SESSION['id'];
+
+    if (isset($_POST['delete_expense'])) {
+
+      echo $expenseId = $_GET['expense_id'];
+
+      $expenseId = mysqli_real_escape_string($connection, $_GET['expense_id']);
+      $query = "DELETE FROM expenses WHERE expense_id = '$expenseId'";
+      $query_run = mysqli_query($connection, $query);
+
+      if ($query_run) {
+
+        header('Location: successDataChange.php');
+      }
+    }
   }
+
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
   echo '<br />Informacja developerska: ' . $e;
@@ -32,7 +49,7 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expenses categories</title>
+  <title>Delete Expense</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
   <link rel="stylesheet" href="./css/style.css" />
@@ -43,8 +60,8 @@ try {
 
   <style>
     body {
-      background-image: url("images/front-3.jpg");
-      height: 1300px;
+      background-image: url("images/gold-ring-1.jpg");
+      height: 850px;
     }
 
     .py-5 {
@@ -61,14 +78,14 @@ try {
       margin-top: 3rem !important;
     }
 
-    .btn-lg {
-      padding-top: : 0.3rem;
-      padding-bottom: 0.3rem;
-      font-size: 0.65rem;
+    .btn {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
-    .table {
-      margin-top: 1rem;
+    .mb-3 {
+      margin-top: 4rem;
+      text-align: center;
     }
   </style>
 </head>
@@ -102,7 +119,7 @@ try {
             </ul>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Kategorie</a>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Kategoria</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./incomesCategories.php">Przychodów</a></li>
               <li><a class="dropdown-item" href="./expensesCategories.php">Wydatków</a></li>
@@ -129,42 +146,45 @@ try {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <h4 class="mb-3">Kategorie wydatków</h4>
-    <div>
+    <h4 class="mb-3" style="margin-top: 12rem">Czy na pewno chcesz usunąć tę transakcję?</h4>
+    <form class="col-12 mb-3" method="post">
       <div>
-        <a href="./addCategory.php">
-          <button class="btn btn-primary w-100 py-2" type="submit"
-            data-nlok-ref-guid="aeaf789e-b250-4308-f552-159fdf94865d">Dodaj nową kategorię wydatku</button></a>
-      </div>
-      <table class="table table-dark table-hover">
-        <tr>
-          <th><span style="color: #E6B31E">Kategoria</span></th>
-          <th></th>
-          <th></th>
-        </tr>
-        <tr>
-        <?php
-          $result = $connection->query("SELECT name FROM expenses_category_assigned_to_users WHERE user_id = $userId");
-
-          while ($categories = $result->fetch_assoc()) {
-            echo "<td> {$categories['name']}</td>" ?>
-            <td>
-              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="./editIncomeCategory.php">
-                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3" name="categoryId">Edytuj</button></a>
-              </div>
-            </td>
-            <td>
-              <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./incomesCategories.php">
-                  <button type="submit" class="btn btn-outline-secondary btn-lg px-4">Usuń</button></a>
-              </div>
-            </td>
+        <table class="table table-dark table-hover">
+          <tr>
+            <th><span style="color: #E6B31E">Data</span></th>
+            <th><span style="color: #E6B31E">Kwota</span></th>
+            <th><span style="color: #E6B31E">Kategoria</span></th>
+            <th><span style="color: #E6B31E">Komentarz</span></th>
+            <th><span style="color: #E6B31E">Metoda płatności</span></th>
           </tr>
-          <?php
-          ;
-          } ?>
-      </table>
-    </div>
+          <tr>
+            <?php
+
+            $expenseId = $_GET['expense_id'];
+
+            mysqli_real_escape_string($connection, $_GET['expense_id']);
+            $query = "SELECT date, amount, category, comment, payment_method FROM expenses WHERE expense_id = '$expenseId'";
+            $query_run = mysqli_query($connection, $query);
+
+            if (mysqli_num_rows($query_run) > 0) {
+              $expense = mysqli_fetch_array($query_run);
+              echo "<td>{$expense['date']}</td>
+              <td>{$expense['amount']}</td>
+              <td>{$expense['category']}
+              <td>{$expense['comment']}</td>
+              <td>{$expense['payment_method']}</td>";
+            }
+            ?>
+          </tr>
+        </table>
+      </div>
+      <div class="px-4 py-5 my-5 text-center">
+        <a href="./choosenPeriodBalance.php">
+          <button type="submit" name="delete_expense" class="btn btn-primary btn-lg px-4 gap-3">Usuń</button></a>
+        <a href="./choosenPeriodBalance.php">
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wyjdź</button></a>
+      </div>
+    </form>
   </main>
 </body>
 
