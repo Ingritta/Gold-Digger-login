@@ -21,25 +21,31 @@ if (!isset($_SESSION['logged_id'])) {
 
     } else {
 
-      $wszystko_OK = true;
+      $ok = true;
 
       $userId = $_SESSION['id'];
-      $name = $_POST['name'];
-    
-      if ((strlen($name) < 3) || (strlen($name) > 20)) {
-        $wszystko_OK = false;
-        $_SESSION['e_name'] = "Imię musi posiadać od 3 do 20 znaków!";
-      }
-    
-      if (ctype_alnum($name) == false) {
-        $wszystko_OK = false;
-        $_SESSION['e_name'] = "Imię może składać się wyłącznie z liter i cyfr (bez polskich znaków).";
-      }
 
-      if ($wszystko_OK == true) {
-        if ($db->query("UPDATE users SET user='$name' WHERE id = $userId")) {
-          header('Location: successDataChange.php'); {
-            throw new Exception($polaczenie->error);
+      if (isset($_POST['name'])) {
+
+        $name = $_POST['name'];
+        $_SESSION['fr_name'] = $name;
+
+        if ((strlen($name) < 3) || (strlen($name) > 20)) {
+          $ok = false;
+          $_SESSION['e_name'] = "Imię musi posiadać od 3 do 20 znaków!";
+        }
+
+        if (ctype_alnum($name) == false) {
+          $ok = false;
+          $_SESSION['e_name'] = "Imię może składać się wyłącznie z liter i cyfr (bez polskich znaków).";
+        }
+
+        if ($ok == true) {
+          if ($db->query("UPDATE users SET user='$name' WHERE id = $userId")) {
+            header('Location: successDataChange.php'); {
+              $_SESSION['fr_name'] = '';
+              throw new Exception($polaczenie->error);
+            }
           }
         }
       }
@@ -71,7 +77,7 @@ if (!isset($_SESSION['logged_id'])) {
   <style>
     body {
       background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
     .error {
@@ -80,7 +86,7 @@ if (!isset($_SESSION['logged_id'])) {
     }
 
     .mb-3 {
-      margin-top: 11rem;
+      margin-top: 18rem;
       text-align: center;
     }
   </style>
@@ -101,12 +107,13 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
-                         </ul>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -125,7 +132,8 @@ if (!isset($_SESSION['logged_id'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
@@ -147,7 +155,12 @@ if (!isset($_SESSION['logged_id'])) {
       <div class="form-floating">
         <input type="text" class="form-control" id="floatingInput" placeholder="Name"
           data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="name" autofocus required
-          value="">
+          value="<?php
+          if (isset($_SESSION['fr_name'])) {
+            echo $_SESSION['fr_name'];
+            unset($_SESSION['fr_name']);
+          }
+          ?>">
         <div id="norton-idsafe-field-styling-divId"
           style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person"

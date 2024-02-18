@@ -18,21 +18,21 @@ try {
     throw new Exception(mysqli_connect_errno());
   } else {
 
-    if (isset($_GET['income_id'])) {
+    if (isset($_GET['expense_id'])) {
 
       $ok = true;
 
       $userId = $_SESSION['id'];
 
-      $incomeId = mysqli_real_escape_string($connection, $_GET['income_id']);
-      $query = "SELECT date, amount, comment FROM incomes WHERE income_id = '$incomeId'";
+      $expenseId = mysqli_real_escape_string($connection, $_GET['expense_id']);
+      $query = "SELECT date, amount, comment FROM expenses WHERE expense_id = '$expenseId'";
       $query_run = mysqli_query($connection, $query);
 
       if (mysqli_num_rows($query_run) > 0) {
-        $income = mysqli_fetch_array($query_run);
-        $date = $income['date'];
-        $amount = $income['amount'];
-        $comment = $income['comment'];
+        $expense = mysqli_fetch_array($query_run);
+        $date = $expense['date'];
+        $amount = $expense['amount'];
+        $comment = $expense['comment'];
       }
 
       $_SESSION['fr_date'] = $date;
@@ -40,17 +40,20 @@ try {
       $_SESSION['fr_comment'] = $comment;
 
       if (isset($_POST['date'])) {
-        
-      $date = new DateTime();
 
-      $currentDate = date('Y') . "-" . date('m') . "-" . date('d');
-       
         $date = $_POST['date'];
-       
+
+        $date = new DateTime();
+
+        $currentDate = date('Y') . "-" . date('m') . "-" . date('d');
+
+        $date = $_POST['date'];
+
         if ($date > $currentDate) {
           $ok = false;
           $_SESSION['e_date'] = "Data znajduje się poza zakresem!";
         }
+
 
         if ($date < '2000-01-01') {
           $ok = false;
@@ -86,13 +89,19 @@ try {
           $_SESSION['e_comment'] = "Proszę używać wyłącznie liter i cyfr i spacji!";
         }
       }
+
+      if (isset($_POST['paymentMethod'])) {
+        $paymentMethod = $_POST['paymentMethod'];
+      }
+
       if ($ok == true) {
-        if (isset($_POST['editIncome'])) {
 
-          $incomeId = $_GET['income_id'];
+        if (isset($_POST['editExpense'])) {
 
-          $categoryId = mysqli_real_escape_string($connection, $_GET['income_id']);
-          $query = "UPDATE incomes SET date = '$date', amount = '$amount', category = '$choise', comment = '$comment' WHERE income_id = '$incomeId'";
+          $expenseId = $_GET['expense_id'];
+
+          $categoryId = mysqli_real_escape_string($connection, $_GET['expense_id']);
+          $query = "UPDATE expenses SET date = '$date', amount = '$amount', category = '$choise', comment = '$comment', payment_method = '$paymentMethod' WHERE expense_id = '$expenseId'";
           $query_run = mysqli_query($connection, $query);
 
           if ($query_run) {
@@ -108,7 +117,8 @@ try {
       }
     }
   }
-  // $connection->close();
+
+  //$connection
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
   echo '<br />Informacja developerska: ' . $e;
@@ -218,7 +228,7 @@ try {
     <h4 class="mb-3">Wprowadź zmiany</h4>
     <div class="col-md-7 col-lg-8">
       <form method="post">
-        <input type="hidden" class="form-control" name="income_id" value="<?php $incomeId ?>">
+        <input type="hidden" class="form-control" name="expense_id" value="<?php $expenseId ?>">
         <div class="row g-3">
           <div class="col-12">
             <label for="goal" class="form-label">Data</label>
@@ -272,7 +282,7 @@ try {
             <label for="category" class="form-label">Kategoria</label>
             <select id="category" class="form-select" name="category" required="">
               <?php
-              $result = $connection->query("SELECT name FROM incomes_category_assigned_to_users WHERE user_id = '$userId'");
+              $result = $connection->query("SELECT name FROM expenses_category_assigned_to_users WHERE user_id = '$userId'");
 
               while ($categories = $result->fetch_assoc()) { ?>
 
@@ -313,10 +323,26 @@ try {
             }
             ?>
           </div>
+          <h4 class="mb-3" style="margin-top: 2rem">Płatność</h4>
+          <div class="my-3">
+            <div class="form-check">
+              <input id="cash" name="paymentMethod" type="radio" class="form-check-input" checked="" required=""
+                value="Gotówka">
+              <label class="form-check-label" for="cash">Gotówka</label>
+            </div>
+            <div class="form-check">
+              <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required="" value="Karta">
+              <label class="form-check-label" for="debit">Karta</label>
+            </div>
+            <div class="form-check">
+              <input id="other" name="paymentMethod" type="radio" class="form-check-input" required="" value="Inna">
+              <label class="form-check-label" for="other">Inna forma płatności: przelew/ paypal/ blik</label>
+            </div>
+          </div>
           <div class="px-4 py-5 my-5 text-center">
-            <button type="submit" name="editIncome" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
+            <button type="submit" name="editExpense" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
             <a href="./successLogin.php">
-          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wyjdź</button></a>
+              <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wyjdź</button></a>
           </div>
         </div>
       </form>

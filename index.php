@@ -18,7 +18,7 @@ session_start();
   <style>
     body {
       background-image: url("./images/gold-ring-0.jpg");
-      height: 700px;
+      height: 750px;
     }
   </style>
   

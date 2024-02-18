@@ -14,7 +14,7 @@ if (isset($_POST['email'])) {
 
     if (ctype_alnum($nick) == false) {
         $wszystko_OK = false;
-        $_SESSION['e_nick'] = "Nick może składać się wyłącznie z liter i cyfr (bez polskich znaków).";
+        $_SESSION['e_nick'] = "Nick może składać się wyłącznie z liter i cyfr (bez polskich znaków)!";
     }
 
     $email = $_POST['email'];
@@ -42,7 +42,7 @@ if (isset($_POST['email'])) {
 
     if (!isset($_POST['regulamin'])) {
         $wszystko_OK = false;
-        $_SESSION['e_regulamin'] = "Proszę potwierdzić zapoznanie się z regulaminem.";
+        $_SESSION['e_regulamin'] = "Proszę potwierdzić zapoznanie się z regulaminem!";
     }
 
     $sekret = "6LcdF08pAAAAAGlmAZ_hMCyW8TmUWGEUrI5Gb6T5";
@@ -51,7 +51,7 @@ if (isset($_POST['email'])) {
     $odpowiedz = json_decode($sprawdz);
     if ($odpowiedz->success == false) {
         $wszystko_OK = false;
-        $_SESSION['e_odpowiedz'] = "Proszę zaznaczyć pole: Nie jestem robotem.";
+        $_SESSION['e_odpowiedz'] = "Proszę zaznaczyć pole: nie jestem robotem!";
     }
 
     $_SESSION['fr_nick'] = $nick;
@@ -66,80 +66,77 @@ if (isset($_POST['email'])) {
     mysqli_report(MYSQLI_REPORT_STRICT);
 
     try {
-        $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-        if ($polaczenie->connect_errno != 0) {
+        $connection = new mysqli($host, $db_user, $db_password, $db_name);
+        if ($connection->connect_errno != 0) {
             throw new Exception(mysqli_connect_errno());
         } else {
 
-            $rezultat = $polaczenie->query("SELECT id FROM users WHERE email='$email'");
+            $result = $connection->query("SELECT id FROM users WHERE email='$email'");
 
-            if (!$rezultat)
-                throw new Exception($polaczenie->error);
+            if (!$result)
+                throw new Exception($connection->error);
 
-            $ile_takich_maili = $rezultat->num_rows;
+            $ile_takich_maili = $result->num_rows;
 
             if ($ile_takich_maili > 0) {
                 $wszystko_OK = false;
-                $_SESSION['e_email'] = "Podany e-mail juz istnieje w bazie.";
+                $_SESSION['e_email'] = "Podany e-mail juz istnieje w bazie!";
             }
 
-            $rezultat = $polaczenie->query("SELECT id FROM users WHERE user='$nick'");
+            $result = $connection->query("SELECT id FROM users WHERE user='$nick'");
 
-            if (!$rezultat)
-                throw new Exception($polaczenie->error);
+            if (!$result)
+                throw new Exception($connection->error);
 
-            $ile_takich_nickow = $rezultat->num_rows;
+            $ile_takich_nickow = $result->num_rows;
 
             if ($ile_takich_nickow > 0) {
                 $wszystko_OK = false;
-                $_SESSION['e_nick'] = "Isnieje już taki nick.";
+                $_SESSION['e_nick'] = "Isnieje już taka nazwa uzytkownika!";
             }
 
             if ($wszystko_OK == true) {
                 if (
-                    $polaczenie->query("INSERT INTO users VALUES (
-                    NULL,
-                    '$nick',
-                    '$haslo_hash',
-                    '$email'
-                    )")
+                    $connection->query("INSERT INTO users VALUES (
+                        NULL,
+                        '$nick',
+                        '$haslo_hash',
+                        '$email'
+                        )")
                 ) {
-                    //pobieranie Id nowego uzytkownika
-                    $userId = $polaczenie->query("SELECT id FROM users WHERE user='$nick'");
+                    $_SESSION['udanarejestracja'] = true;
 
-                    // $userId = mysqli_query($polaczenie, "SELECT id FROM users WHERE user='$nick'");
-                    // if (!$userId) {
-                    //     die(mysqli_error($polaczenie));
-                    // }
-                    // echo $userId;
+                    $result = $connection->query("SELECT id FROM users WHERE user='$nick'");
 
+                    while ($row = $result->fetch_assoc()) {
 
-                    //kopiowanie kategorii
-                    $usersQuery = $db->query(
-                        "INSERT INTO incomes_category_assigned_to_users (name) 
-                        SELECT (name) FROM incomes_category_default"
-                    );
-
-                    $numOfusers = $rezultat->num_rows;
-
-                    if ($numOfusers == 1) {
-                        $numOfusers = $rezultat->fetch_assoc();
-                        $userId = implode($numOfusers);
+                        $userId = $row['id'];
                     }
 
-                    $usersQuery = $db->query("UPDATE incomes_category_assigned_to_users 
-                        SET user_id = $userId 
+                    //kopiowanie kategorii przychodów
+                    $usersQuery = $db->query(
+                        "INSERT INTO incomes_category_assigned_to_users (name)
+                            SELECT (name) FROM incomes_category_default"
+                    );
+                    $usersQuery = $db->query("UPDATE incomes_category_assigned_to_users
+                        SET user_id = '$userId'
                         WHERE user_id = 0");
 
-                    $usersQuery->fetchAll();
+                    //kopiowanie kategorii wydatków
+                    $usersQuery = $db->query(
+                        "INSERT INTO expenses_category_assigned_to_users (name)
+                        SELECT (name) FROM expenses_category_default"
+                    );
+                    $usersQuery = $db->query("UPDATE expenses_category_assigned_to_users
+                     SET user_id = '$userId'
+                     WHERE user_id = 0");
+                }
 
-                    $_SESSION['udanarejestracja'] = true;
-                    header('Location: successRegistration.php'); {
-                        throw new Exception($polaczenie->error);
-                    }
+                header('Location: successRegistration.php'); {
+                    throw new Exception($connection->error);
                 }
             }
-            $polaczenie->close();
+            $connection->close();
         }
 
     } catch (Exception $e) {
@@ -321,7 +318,8 @@ if (isset($_POST['email'])) {
             }
             ?>
             <button class="btn btn-primary w-100 py-2" type="submit"
-                data-nlok-ref-guid="aeaf789e-b250-4308-f552-159fdf94865d">Zarejestruj się</button>
+                data-nlok-ref-guid="aeaf789e-b250-4308-f552-159fdf94865d">Zarejestruj się
+            </button>
         </form>
     </main>
 </body>

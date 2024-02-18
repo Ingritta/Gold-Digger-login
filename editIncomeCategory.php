@@ -7,49 +7,52 @@ if (!isset($_SESSION['zalogowany'])) {
   exit();
 }
 
-if (!isset($_SESSION['logged_id'])) {
+$userId = $_SESSION['id'];
 
-  $userId = $_SESSION['id'];
+require_once 'database.php';
 
-  require_once 'database.php';
+mysqli_report(MYSQLI_REPORT_STRICT);
 
-  mysqli_report(MYSQLI_REPORT_STRICT);
+try {
+  $connection = new mysqli($host, $db_user, $db_password, $db_name);
+  if ($connection->connect_errno != 0) {
 
-  try {
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-    if ($polaczenie->connect_errno != 0) {
-      throw new Exception(mysqli_connect_errno());
-    } else {
+    throw new Exception(mysqli_connect_errno());
 
-      $wszystko_OK = true;
+  } else {
+
+    $ok = true;
+
+    if (isset($_POST['description'])) {
 
       $description = $_POST['description'];
+
       if ((strlen($description) < 3) || (strlen($description) > 20)) {
-        $wszystko_OK = false;
+
+        $ok = false;
+
         $_SESSION['e_description'] = "Opis musi posiadać od 3 do 20 znaków!";
       }
 
-      if ($wszystko_OK == true) {
+      if ($ok == true) {
 
-        $choise = $_POST['description'];
+        $categoryId = $_GET['id'];
 
-        if (
-          $db->query("UPDATE incomes_category_assigned_to_users SET name = '$description'
-        ")
-        ) {
-          header('Location: incomesCategories.php'); {
-            throw new Exception($polaczenie->error);
-          }
+        $categoryId = mysqli_real_escape_string($connection, $_GET['id']);
+        $query = "UPDATE incomes_category_assigned_to_users SET name = '$description' WHERE id = '$categoryId'";
+        $query_run = mysqli_query($connection, $query);
+
+        if ($query_run) {
+
+          header('Location: incomesCategories.php');
         }
       }
     }
-
-    $polaczenie->close();
-
-  } catch (Exception $e) {
-    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
-    echo '<br />Iformacja developerska: ' . $e;
   }
+  $connection->close();
+} catch (Exception $e) {
+  echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+  echo '<br />Iformacja developerska: ' . $e;
 }
 
 ?>
@@ -107,12 +110,13 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
-                          </ul>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -131,6 +135,7 @@ if (!isset($_SESSION['logged_id'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>

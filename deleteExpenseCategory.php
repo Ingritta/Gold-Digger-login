@@ -11,45 +11,61 @@ require_once 'database.php';
 
 mysqli_report(MYSQLI_REPORT_STRICT);
 
-try {
-  $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+$userId = $_SESSION['id'];
 
-  if ($polaczenie->connect_errno != 0) {
+try {
+  $connection = new mysqli($host, $db_user, $db_password, $db_name);
+
+  if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
 
   } else {
 
     $ok = true;
 
-    $userId = $_SESSION['id'];
+    $categoryId = $_GET['id'];
 
-    if (isset($_POST['haslo1']) && isset($_POST['haslo2'])) {
+    mysqli_real_escape_string($connection, $_GET['id']);
+    $query = "SELECT name FROM expenses_category_assigned_to_users WHERE id = '$categoryId'";
+    $query_run = mysqli_query($connection, $query);
 
-    $haslo1 = $_POST['haslo1'];
-    $haslo2 = $_POST['haslo2'];
-    $_SESSION['fr_haslo1'] = $haslo1;
+    if (mysqli_num_rows($query_run) > 0) {
+      $category = mysqli_fetch_array($query_run);
 
-    if ((strlen($haslo1) < 8) || (strlen($haslo1) > 20)) {
-      $ok = false;
-      $_SESSION['e_haslo'] = "Hasło musi posiadać od 8 do 20 znaków.";
-    }
+      $categoryName = $category['name'];
 
-    if ($haslo1 != $haslo2) {
-      $ok = false;
-      $_SESSION['e_haslo'] = "Podane hasła nie są identyczne.";
-    }
+      if (isset($_POST['delete_expense_category'])) {
 
-      if ($ok == true) {
-        $haslo_hash = password_hash($haslo1, PASSWORD_DEFAULT);
-        if ($db->query("UPDATE users SET pass='$haslo_hash' WHERE id = $userId")) {
-          header('Location: successDataChange.php'); {
-            $_SESSION['fr_haslo1'] = '';
-            throw new Exception($polaczenie->error);
+        $result = $connection->query("SELECT expense_id 
+      FROM expenses
+      WHERE user_id = $userId AND category = '$categoryName'
+     ");
+
+        $howManyExist = $result->num_rows;
+
+        if ($howManyExist > 0) {
+          $ok = false;
+          $_SESSION['e_category'] = "Nie możesz usunąć tej kategorii, ponieważ jest do niej przypisana transakcja! </br> Jeśli chcesz, możesz ją edytować";
+        }
+
+        if ($ok == true) {
+
+          $categoryId = $_GET['id'];
+
+          $categoryId = mysqli_real_escape_string($connection, $_GET['id']);
+          $query = "DELETE FROM expenses_category_assigned_to_users WHERE id = '$categoryId'";
+          $query_run = mysqli_query($connection, $query);
+
+          if ($query_run) {
+
+            header('Location: expensesCategories.php');
           }
         }
       }
     }
   }
+  $connection->close();
+
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
   echo '<br />Informacja developerska: ' . $e;
@@ -63,8 +79,7 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Change password</title>
-
+  <title>Delete Income Category</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
   <link rel="stylesheet" href="./css/style.css" />
@@ -75,17 +90,31 @@ try {
 
   <style>
     body {
-      background-image: url("./images/gold-ring-1.jpg");
-      height: 1000px;
+      background-image: url("images/gold-ring-1.jpg");
+      height: 850px;
     }
 
-    .error {
-      margin-bottom: 1rem !important;
-      color: #E6B31E;
+    .py-5 {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    .form-signin {
+      max-width: 700px;
+      padding: 1rem;
+    }
+
+    .my-5 {
+      margin-top: 3rem !important;
+    }
+
+    .btn {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
     .mb-3 {
-      margin-top: 16rem;
+      margin-top: 4rem;
       text-align: center;
     }
   </style>
@@ -106,7 +135,7 @@ try {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
-                          </ul>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
@@ -132,7 +161,7 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
-            <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
@@ -149,52 +178,33 @@ try {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <form method="post">
-      <h1 class="h3 mb-3 fw-normal">Podaj nowe hasło</h1>
-      <div class="form-floating">
-        <input type="password" class="form-control" id="inputPassword" placeholder="Password"
-          data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off" name="haslo1" required type="password"  value="<?php
-          if (isset($_SESSION['fr_haslo1'])) {
-            echo $_SESSION['fr_haslo1'];
-            unset($_SESSION['fr_haslo1']);
-          }
-          ?>">
-        <div id="norton-idsafe-field-styling-divId"
-          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
-            viewBox="0 0 16 16">
-            <path
-              d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
-            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-          </svg>
-        </div>
-        <label for="floatingPassword">Hasło</label>
+    <h4 class="mb-3" style="margin-top: 12rem">Czy na pewno chcesz usunąć tę kategorię?</h4>
+    <form class="col-12 mb-3" method="post">
+      <div>
+        <table class="table table-dark table-hover">
+          <tr>
+            <th><span style="color: #E6B31E">Nazwa kategorii</span></th>
+          </tr>
+          <tr>
+            <?php
+            echo "<td>{$category['name']}</td>";
+            ?>
+          </tr>
+        </table>
+
+        <?php
+        if (isset($_SESSION['e_category'])) {
+          echo '<div class="error">' . $_SESSION['e_category'] . '</div>';
+          unset($_SESSION['e_category']);
+        }
+        ?>
       </div>
-      <?php
-      if (isset($_SESSION['e_haslo'])) {
-        echo '<div class="error">' . $_SESSION['e_haslo'] . '</div>';
-        unset($_SESSION['e_haslo']);
-      }
-      ?>
-      <div class="form-floating">
-        <input type="password" class="form-control" id="inputPasswordConfirmation" name="haslo2"
-          placeholder="Repeat password" data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off"
-          value="">
-        <div id="norton-idsafe-field-styling-divId"
-          style="height:24px;max-width:24px;vertical-align:top; position:absolute; top:17px;left:264.38709677419354px;cursor:pointer;resize: both;z-index:2147483646;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key"
-            viewBox="0 0 16 16">
-            <path
-              d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z" />
-            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
-          </svg>
-        </div>
-        <label for="floatingPassword">Powtórz hasło</label>
-      </div>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
-        <a href="./successLogin.php">
-          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Anuluj</button></a>
+      <div class="px-4 py-5 my-5 text-center">
+        <a href="./choosenPeriodBalance.php">
+          <button type="submit" name="delete_expense_category"
+            class="btn btn-primary btn-lg px-4 gap-3">Usuń</button></a>
+        <a href="./expensesCategories.php">
+          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wróć</button></a>
       </div>
     </form>
   </main>

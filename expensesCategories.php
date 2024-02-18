@@ -16,8 +16,18 @@ try {
 
   if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
+
   } else {
+
     $userId = $_SESSION['id'];
+
+    $usersQuery = $db->query
+    (
+      "SELECT id, name FROM expenses_category_assigned_to_users WHERE user_id = $userId"
+    );
+
+    $listOfCategories = $usersQuery->fetchAll();
+
   }
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
@@ -94,6 +104,7 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -112,6 +123,7 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
@@ -144,25 +156,31 @@ try {
         </tr>
         <tr>
         <?php
-          $result = $connection->query("SELECT name FROM expenses_category_assigned_to_users WHERE user_id = $userId");
-
-          while ($categories = $result->fetch_assoc()) {
-            echo "<td> {$categories['name']}</td>" ?>
+        foreach ($listOfCategories as $category) {
+          ?>
+          <tr>
+          <tr>
+            <td>
+              <?= $category['name']; ?>
+            </td>
             <td>
               <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="./editIncomeCategory.php">
-                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3" name="categoryId">Edytuj</button></a>
+                <a href="./editExpenseCategory.php?id=<?= $category['id']; ?>">
+                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3" name="edit_category">Edytuj</button></a>
+                </form>
               </div>
             </td>
             <td>
               <div class="d-grid gap-2 d-sm-flex justify-content-sm-center"><a href="./incomesCategories.php">
-                  <button type="submit" class="btn btn-outline-secondary btn-lg px-4">Usuń</button></a>
+                  <a href="./deleteExpenseCategory.php?id=<?= $category['id']; ?>">
+                    <button type="submit" class="btn btn-outline-secondary btn-lg px-4"
+                      name="delete_expense_category">Usuń</button></a>
               </div>
             </td>
           </tr>
           <?php
           ;
-          } ?>
+        } ?>
       </table>
     </div>
   </main>

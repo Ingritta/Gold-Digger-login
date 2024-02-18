@@ -7,34 +7,49 @@ if (!isset($_SESSION['zalogowany'])) {
   exit();
 }
 
-if (!isset($_SESSION['logged_id'])) {
+$userId = $_SESSION['id'];
 
-  $userId = $_SESSION['id'];
+require_once 'database.php';
 
-  require_once 'database.php';
+mysqli_report(MYSQLI_REPORT_STRICT);
 
-  mysqli_report(MYSQLI_REPORT_STRICT);
+try {
+  $connection = new mysqli($host, $db_user, $db_password, $db_name);
+  if ($connection->connect_errno != 0) {
+    throw new Exception(mysqli_connect_errno());
 
-  try {
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
-    if ($polaczenie->connect_errno != 0) {
-      throw new Exception(mysqli_connect_errno());
+  } else {
 
-    } else {
+    $ok = true;
 
-      $wszystko_OK = true;
+    if (isset($_POST['description'])) {
 
       $description = $_POST['description'];
-      
+
       if ((strlen($description) < 3) || (strlen($description) > 20)) {
-        $wszystko_OK = false;
+        $ok = false;
         $_SESSION['e_description'] = "Opis musi posiadać od 3 do 20 znaków!";
       }
 
-      if ($wszystko_OK == true) {
-        $choise = $_POST['name'];
+      $choise = $_POST['name'];
 
-        if ($choise == "incomes_categories") {
+      if ($choise == "incomes_categories") {
+
+        $result = $connection->query("SELECT id 
+          FROM incomes_category_assigned_to_users 
+          WHERE user_id = $userId AND name= '$description'
+         ");
+
+        $howManyExist = $result->num_rows;
+
+        if ($howManyExist > 0) {
+          $ok = false;
+          $_SESSION['e_description'] = "Istnieje już taka kategoria!";
+        }
+        
+        $_SESSION['fr_description'] = $description;
+
+        if ($ok == true) {
           if (
             $db->query("INSERT INTO incomes_category_assigned_to_users VALUES (
             NULL,
@@ -42,12 +57,30 @@ if (!isset($_SESSION['logged_id'])) {
             '$description'
 )")
           ) {
-            header('Location: successDataChange.php'); {
-              throw new Exception($polaczenie->error);
+            header('Location: incomesCategories.php'); {
+              $_SESSION['fr_description'] = '';
+              throw new Exception($connection->error);
             }
           }
+        }
 
-        } else if ($choise == "expenses_categories") {
+      } else if ($choise == "expenses_categories") {
+
+        $result = $connection->query("SELECT id 
+          FROM expenses_category_assigned_to_users 
+          WHERE user_id = $userId AND name = '$description'
+         ");
+
+        $howManyExist = $result->num_rows;
+
+        if ($howManyExist > 0) {
+          $ok = false;
+          $_SESSION['e_description'] = "Istnieje już taka kategoria!";
+        }
+        $_SESSION['fr_description'] = $description;
+
+        if ($ok == true) {
+
           if (
             $db->query("INSERT INTO expenses_category_assigned_to_users VALUES (
             NULL,
@@ -55,31 +88,22 @@ if (!isset($_SESSION['logged_id'])) {
             '$description'
 )")
           ) {
-            header('Location: successDataChange.php'); {
-              throw new Exception($polaczenie->error);
-            }
-          }
-        } else if ($choise == "payment_method") {
-          if (
-            $db->query("INSERT INTO payment_method_assigned_to_user VALUES (
-          NULL,
-          '$userId',
-          '$description'
-)")
-          ) {
-            header('Location: successDataChange.php'); {
-              throw new Exception($polaczenie->error);
+            header('Location: expensesCategories.php'); {
+              $_SESSION['fr_description'] = '';
+              throw new Exception($connection->error);
             }
           }
         }
       }
     }
-    $polaczenie->close();
-  } catch (Exception $e) {
-    echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
-    echo '<br />Iformacja developerska: ' . $e;
   }
+  $connection->close();
+
+} catch (Exception $e) {
+  echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
+  echo '<br />Iformacja developerska: ' . $e;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -101,7 +125,7 @@ if (!isset($_SESSION['logged_id'])) {
   <style>
     body {
       background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
     .error {
@@ -110,7 +134,7 @@ if (!isset($_SESSION['logged_id'])) {
     }
 
     .mb-3 {
-      margin-top: 11rem;
+      margin-top: 14rem;
       text-align: center;
     }
 
@@ -141,6 +165,7 @@ if (!isset($_SESSION['logged_id'])) {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -183,12 +208,12 @@ if (!isset($_SESSION['logged_id'])) {
         <select id="category" name="name" class="form-select" required="">
           <option value="incomes_categories">Kategorie przychodów</option>
           <option value="expenses_categories">Kategorie wydatków</option>
-                  </select>
+        </select>
         <div class="invalid-feedback">
           Wybierz kateorię.
         </div>
       </div>
-      <div class="col-12">
+      <div class="form-floating">
         <div class="input-group has-validation">
           <span class="input-group-text">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
@@ -198,10 +223,15 @@ if (!isset($_SESSION['logged_id'])) {
             </svg>
           </span>
           <input type="text" class="form-control" id="goal" placeholder="Nazwa kategorii" required=""
-            name="description">
-          <div class="invalid-feedback">
+            name="description" value="<?php
+              if (isset($_SESSION['fr_description'])) {
+                echo $_SESSION['fr_description'];
+                unset($_SESSION['fr_description']);
+              }
+              ?>">
+          <!-- <div class="invalid-feedback">
             Proszę uzupełnić informację.
-          </div>
+          </div> -->
         </div>
         <?php
         if (isset($_SESSION['e_description'])) {

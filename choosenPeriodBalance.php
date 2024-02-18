@@ -21,73 +21,123 @@ if (!isset($_SESSION['logged_id'])) {
 
     } else {
 
-      $wszystko_OK = true;
+      $userId = $_SESSION['id'];
+
+      $ok = true;
 
       $date = new DateTime();
 
       $date = date('Y') . "-" . date('m') . "-" . date('d');
 
-      $userId = $_SESSION['id'];
-      $startDate = $_SESSION['startDate'];
-      $endDate = $_SESSION['endDate'];
+      if (isset($_POST['startDate']) && isset($_POST['endDate'])) {
 
-      $usersQuery = $db->query
-      (
-        "SELECT income_id, date, amount, category, comment 
+        $startDate = $_POST['startDate'];
+        $endDate = $_POST['endDate'];
+        $_SESSION['fr_startDate'] = $startDate;
+        $_SESSION['fr_endDate'] = $endDate;
+
+        if ($startDate == '') {
+          $ok = false;
+          $_SESSION['e_startDate'] = "Proszę wybrać datę!";
+        }
+
+        if ($startDate < '2000-01-01') {
+          $ok = false;
+          $_SESSION['e_startDate'] = "Podano nieprawidłową datę!";
+        }
+
+        if ($startDate > $date) {
+          $ok = false;
+          $_SESSION['e_startDate'] = "Data znajduje się poza zakresem!";
+        }
+
+        if ($endDate == '') {
+          $ok = false;
+          $_SESSION['e_endDate'] = "Proszę wybrać datę!";
+        }
+
+        if ($endDate < '2000-01-01') {
+          $ok = false;
+          $_SESSION['e_endDate'] = "Podano nieprawidłową datę!";
+        }
+
+        if ($endDate > $date) {
+          $ok = false;
+          $_SESSION['e_endDate'] = "Data znajduje się poza zakresem!";
+        }
+
+        if ($startDate > $endDate) {
+          $ok = false;
+          $_SESSION['e_endDate'] = "Data końcowa powinna być późniejsza od daty początkowej!";
+        }
+      } else {
+        $ok = false;
+      }
+
+      if ($ok == true) {
+        $startDate = $_SESSION['fr_startDate'];
+        $endDate = $_SESSION['fr_endDate'];
+
+        $usersQuery = $db->query
+        (
+          "SELECT income_id, date, amount, category, comment 
         FROM incomes 
         WHERE incomes.user_id = $userId
         AND incomes.date BETWEEN '$startDate' AND '$endDate' ORDER BY incomes.date ASC"
-      );
+        );
 
-      $incomes = $usersQuery->fetchAll();
+        $incomes = $usersQuery->fetchAll();
 
-      $usersQuery = $db->query
-      (
-        "SELECT expense_id, date, amount, category, comment, 'payment_method' 
-      FROM expenses 
-      WHERE expenses.user_id = $userId
-      AND expenses.date BETWEEN '$startDate' AND '$endDate' ORDER BY expenses.date ASC"
-      );
+        $usersQuery = $db->query
+        (
+          "SELECT expense_id, date, amount, category, comment, 'payment_method' 
+        FROM expenses 
+        WHERE expenses.user_id = $userId
+        AND expenses.date BETWEEN '$startDate' AND '$endDate' ORDER BY expenses.date ASC"
+        );
 
-      $expenses = $usersQuery->fetchAll();
+        $expenses = $usersQuery->fetchAll();
 
-      $result = $connection->query(
-        "SELECT SUM(incomes.amount) AS incomesSum 
-      FROM incomes 
-      WHERE incomes.user_id = $userId
-      AND incomes.date BETWEEN '$startDate' AND '$endDate'"
-      );
+        $result = $connection->query(
+          "SELECT SUM(incomes.amount) AS incomesSum 
+        FROM incomes 
+        WHERE incomes.user_id = $userId
+        AND incomes.date BETWEEN '$startDate' AND '$endDate'"
+        );
 
-      $sum = $result->num_rows;
-      if ($sum > 0) {
-        $row = $result->fetch_assoc();
-        $incomesSum = implode($row);
-      }
+        $sum = $result->num_rows;
+        if ($sum > 0) {
+          $row = $result->fetch_assoc();
+          $incomesSum = implode($row);
+        }
 
-      $result = $connection->query("SELECT
-      SUM(expenses.amount) AS expensesSum 
-      FROM expenses 
-      WHERE expenses.user_id = $userId
-      AND expenses.date BETWEEN '$startDate' AND '$endDate'");
+        $result = $connection->query("SELECT
+        SUM(expenses.amount) AS expensesSum 
+        FROM expenses 
+        WHERE expenses.user_id = $userId
+        AND expenses.date BETWEEN '$startDate' AND '$endDate'");
 
-      $sum = $result->num_rows;
-      if ($sum > 0) {
-        $row = $result->fetch_assoc();
-        $expensesSum = implode($row);
-      }
+        $sum = $result->num_rows;
+        if ($sum > 0) {
+          $row = $result->fetch_assoc();
+          $expensesSum = implode($row);
+        }
 
-      if ($incomesSum > 0 && $expensesSum > 0) {
-        $balance = $incomesSum - $expensesSum;
-      } else if ($incomesSum <= 0 && $expensesSum >= 0) {
-        $incomesSum = 0;
-        $balance = 0 - $expensesSum;
-      } else if ($incomesSum >= 0 && $expensesSum <= 0) {
-        $expensesSum = 0;
-        $balance = $incomesSum;
-      } else if ($incomesSum <= 0 && $expensesSum <= 0) {
-        $incomesSum = 0;
-        $expensesSum = 0;
-        $balance = 0;
+        if ($incomesSum > 0 && $expensesSum > 0) {
+          $balance = $incomesSum - $expensesSum;
+        } else if ($incomesSum <= 0 && $expensesSum >= 0) {
+          $incomesSum = 0;
+          $balance = 0 - $expensesSum;
+        } else if ($incomesSum >= 0 && $expensesSum <= 0) {
+          $expensesSum = 0;
+          $balance = $incomesSum;
+        } else if ($incomesSum <= 0 && $expensesSum <= 0) {
+          $incomesSum = 0;
+          $expensesSum = 0;
+          $balance = 0;
+        }
+        $_SESSION['fr_startDate'] = '';
+        $_SESSION['fr_endDate'] = '';
       }
     }
 
@@ -145,6 +195,10 @@ if (!isset($_SESSION['logged_id'])) {
       margin-top: 1.5rem;
       margin-bottom: 1.5rem;
     }
+
+    .error {
+      color: #E6B31E;
+    }
   </style>
 </head>
 
@@ -169,6 +223,7 @@ if (!isset($_SESSION['logged_id'])) {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -187,6 +242,7 @@ if (!isset($_SESSION['logged_id'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
               <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
@@ -204,9 +260,9 @@ if (!isset($_SESSION['logged_id'])) {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <h4 class="mb-3" style="margin-top: 1rem">Wybierz daty</h4>
-    <div class="col-12 mb-3">
-      <form class="col-12 mb-3" method="post" action="choosePeriod.php">
+    <form class="col-12 mb-3" method="post">
+      <h4 class="mb-3" style="margin-top: 1rem">Wybierz daty</h4>
+      <div class="col-12 mb-3">
         <label for="goal" class="form-label">Data początkowa</label>
         <div class="input-group has-validation">
           <span class="input-group-text">
@@ -216,18 +272,21 @@ if (!isset($_SESSION['logged_id'])) {
                 d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
             </svg>
           </span>
-          <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="startDate">
+          <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="startDate" value="<?php
+          if (isset($_SESSION['fr_startDate'])) {
+            echo $_SESSION['fr_startDate'];
+            unset($_SESSION['fr_startDate']);
+          }
+          ?>">
         </div>
         <?php
-        if (isset($_SESSION['e_date'])) {
-          echo '<div class="error">' . $_SESSION['e_date'] . '</div>';
-          unset($_SESSION['e_date']);
+        if (isset($_SESSION['e_startDate'])) {
+          echo '<div class="error">' . $_SESSION['e_startDate'] . '</div>';
+          unset($_SESSION['e_startDate']);
         }
         ?>
-      </form>
-    </div>
-    <div class="col-12">
-      <form class="col-12 mb-3" method="post" action="choosePeriod.php">
+      </div>
+      <div class="col-12">
         <label for="goal" class="form-label">Data końcowa</label>
         <div class="input-group has-validation">
           <span class="input-group-text">
@@ -237,7 +296,12 @@ if (!isset($_SESSION['logged_id'])) {
                 d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
             </svg>
           </span>
-          <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="endDate">
+          <input type="date" class="form-control" id="goal" placeholder="Data" required="" name="endDate" value="<?php
+          if (isset($_SESSION['fr_endDate'])) {
+            echo $_SESSION['fr_endDate'];
+            unset($_SESSION['fr_endDate']);
+          }
+          ?>">
         </div>
         <?php
         if (isset($_SESSION['e_endDate'])) {
@@ -245,148 +309,152 @@ if (!isset($_SESSION['logged_id'])) {
           unset($_SESSION['e_endDate']);
         }
         ?>
-      </form>
-    </div>
-    <button type="submit" class="btn btn-primary w-100 py-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down"
-        viewBox="0 0 16 16">
-      </svg>
-      Akceptuj
-    </button>
-    <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
-    <div>
-      <table class="table table-dark table-hover">
-        <tr>
-          <th><span style="color: #E6B31E">Data</span></th>
-          <th><span style="color: #E6B31E">Kwota</span></th>
-          <th><span style="color: #E6B31E">Kategoria</span></th>
-          <th><span style="color: #E6B31E">Komentarz</span></th>
-          <th></th>
-          <th></th>
-        </tr>
-        <?php
-        foreach ($incomes as $user) {
-          ?>
-          <tr>
-            <td>
-              <?= $user['date']; ?>
-            </td>
-            <td>
-              <?= $user['amount']; ?>
-            </td>
-            <td>
-              <?= $user['category']; ?>
-            </td>
-            <td>
-              <?= $user['comment']; ?>
-            </td>
-            <td>
-              <form style="height: 7px" class="col-12 mb-3" method="post" action="editIncome.php">
-                <a href="./editIncome.php?income_id=<?= $user['income_id']; ?>">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
-                    <path
-                      d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
-                  </svg>
-              </form>
-            </td>
-            <td>
-              <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteIncome.php">
-                <a href="./deleteIncome.php?income_id=<?= $user['income_id']; ?>">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
-                    <path
-                      d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                  </svg>
-              </form>
-            </td>
-          </tr>
-        <?php }
-        ?>
-      </table>
-      <?php
-      ?>
-      <div>
-        <p class="lead mb-4">W badanym okresie w skarbcu zdeponowano:
-          <?php echo $incomesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
-        </p>
       </div>
-    </div>
-    <h4 class="mb-3">Wydatki</h4>
-    <div>
-      <table class="table table-dark table-hover">
-        <tr>
-          <th><span style="color: #E6B31E">Data</span></th>
-          <th><span style="color: #E6B31E">Kwota</span></th>
-          <th><span style="color: #E6B31E">Kategoria</span></th>
-          <th><span style="color: #E6B31E">Komentarz</span></th>
-          <th><span style="color: #E6B31E">Metoda płatności</span></th>
-          <th></th>
-          <th></th>
-        </tr>
-        <?php
-        foreach ($expenses as $user) {
-          ?>
+      <button type="submit" class="btn btn-primary w-100 py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sort-down"
+          viewBox="0 0 16 16">
+        </svg>
+        Akceptuj
+      </button>
+
+      <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
+      <div>
+        <table class="table table-dark table-hover">
           <tr>
-            <td>
-              <?= $user['date']; ?>
-            </td>
-            <td>
-              <?= $user['amount']; ?>
-            </td>
-            <td>
-              <?= $user['category']; ?>
-            </td>
-            <td>
-              <?= $user['comment']; ?>
-            </td>
-            <td>
-              <?= $user['payment_method']; ?>
-            </td>
-            <td>
-              <form style="height: 7px" class="col-12 mb-3" method="post" action="editExpense.php">
-                <a href="./editExpense.php?expense_id=<?= $user['expense_id']; ?>">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
-                    <path
-                      d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
-                  </svg>
-              </form>
-            </td>
-            <td>
-              <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteExpense.php">
-                <a href="./deleteExpense.php?expense_id=<?= $user['expense_id']; ?>">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
-                    <path
-                      d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                  </svg>
-              </form>
-            </td>
+            <th><span style="color: #E6B31E">Data</span></th>
+            <th><span style="color: #E6B31E">Kwota</span></th>
+            <th><span style="color: #E6B31E">Kategoria</span></th>
+            <th><span style="color: #E6B31E">Komentarz</span></th>
+            <th></th>
+            <th></th>
           </tr>
           <?php
-          ;
-        } ?>
-      </table>
+          if ($ok == true) {
+            foreach ($incomes as $user) {
+              ?>
+              <tr>
+                <td>
+                  <?= $user['date']; ?>
+                </td>
+                <td>
+                  <?= $user['amount']; ?>
+                </td>
+                <td>
+                  <?= $user['category']; ?>
+                </td>
+                <td>
+                  <?= $user['comment']; ?>
+                </td>
+                <td>
+                  <form style="height: 7px" class="col-12 mb-3" method="post" action="editIncome.php">
+                    <a href="./editIncome.php?income_id=<?= $user['income_id']; ?>">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
+                        <path
+                          d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                      </svg>
+                  </form>
+                </td>
+                <td>
+                  <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteIncome.php">
+                    <a href="./deleteIncome.php?income_id=<?= $user['income_id']; ?>">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
+                        <path
+                          d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                      </svg>
+                  </form>
+                </td>
+              </tr>
+              <?php
+            }
+          }
+          ?>
+        </table>
+        
+        <div>
+          <p class="lead mb-4">W badanym okresie w skarbcu zdeponowano:
+            <?php if ($ok == true) {
+              echo $incomesSum;
+            } ?> <b><span style="color: #E6B31E">zł</span></b>.
+          </p>
+        </div>
+      </div>
+      <h4 class="mb-3">Wydatki</h4>
       <div>
-        <p class="lead mb-4">W badanym okresie zasoby skarbca zmniejszyły się o:
-          <?php echo $expensesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
+        <table class="table table-dark table-hover">
+          <tr>
+            <th><span style="color: #E6B31E">Data</span></th>
+            <th><span style="color: #E6B31E">Kwota</span></th>
+            <th><span style="color: #E6B31E">Kategoria</span></th>
+            <th><span style="color: #E6B31E">Komentarz</span></th>
+            <th><span style="color: #E6B31E">Metoda płatności</span></th>
+            <th></th>
+            <th></th>
+          </tr>
+          <?php
+          if ($ok == true) {
+            foreach ($expenses as $user) {
+              ?>
+              <tr>
+                <td>
+                  <?= $user['date']; ?>
+                </td>
+                <td>
+                  <?= $user['amount']; ?>
+                </td>
+                <td>
+                  <?= $user['category']; ?>
+                </td>
+                <td>
+                  <?= $user['comment']; ?>
+                </td>
+                <td>
+                  <?= $user['payment_method']; ?>
+                </td>
+                <td>
+                  <form style="height: 7px" class="col-12 mb-3" method="post" action="editExpense.php">
+                    <a href="./editExpense.php?expense_id=<?= $user['expense_id']; ?>">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
+                        <path
+                          d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                      </svg>
+                  </form>
+                </td>
+                <td>
+                  <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteExpense.php">
+                    <a href="./deleteExpense.php?expense_id=<?= $user['expense_id']; ?>">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
+                        <path
+                          d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                      </svg>
+                  </form>
+                </td>
+              </tr>
+              <?php
+              ;
+            }
+          }
+          ?>
+        </table>
+        <div>
+          <p class="lead mb-4">W badanym okresie zasoby skarbca zmniejszyły się o:
+            <?php if ($ok == true) {
+              echo $expensesSum;
+            } ?> <b><span style="color: #E6B31E">zł</span></b>.
+          </p>
+        </div>
+        <h4 class="mb-3" style="margin-top: 1rem">Bilans: </h4>
+        <p class="lead mb-4">W danym okresie bilans wynosił:
+          <?php if ($ok == true) {
+            echo $balance;
+          } ?><b><span style="color: #E6B31E"> zł</span></b>.
         </p>
       </div>
-      <h4 class="mb-3" style="margin-top: 1rem">Bilans: </h4>
-      <p class="lead mb-4">W danym okresie bilans wynosił:
-        <?php echo $balance; ?><b><span style="color: #E6B31E"> zł</span></b>.
-      </p>
-    </div>
     </form>
   </main>
 </body>
 
 </html>
-
-<!-- <?php
-while ($categories = $resultForIncome->fetch_assoc()) { ?>
-  <select value="<?php echo $categories['incomes_id'] ?>">
-  <?php echo "{$categories['name']}" ?>
-  </select>;
-<?php } ?> -->
