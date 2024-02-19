@@ -33,12 +33,12 @@ try {
 
     if ($date < '2000-01-01') {
       $ok = false;
-      $_SESSION['e_date'] = "Podano niprawidłową datę!";
+      $_SESSION['e_date'] = "Data nie może być starsza niż 01.01.2000r!";
     }
 
     if ($date > $currentDate) {
       $ok = false;
-      $_SESSION['e_date'] = "Data znajduje się poza zakresem!";
+      $_SESSION['e_date'] = "Wybierz maksymalnie dzisiejszą datę!";
     }
 
     $amount = $_POST['amount'];
@@ -89,7 +89,6 @@ try {
           $_SESSION['fr_amount'] = '';
           $_SESSION['fr_comment'] = '';
           throw new Exception($connection->error);
-
         }
       }
     } else {
@@ -97,7 +96,6 @@ try {
       header('Location: addExpense.php');
     }
   }
-
   $connection->close();
 
 } catch (Exception $e) {

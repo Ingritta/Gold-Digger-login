@@ -34,7 +34,7 @@ try {
         header('Location: successDataChange.php');
       }
     }
-    $connection->close();
+    // $connection->close();
   }
 
 } catch (Exception $e) {
@@ -62,7 +62,7 @@ try {
   <style>
     body {
       background-image: url("images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
     .py-5 {
@@ -76,7 +76,7 @@ try {
     }
 
     .my-5 {
-      margin-top: 3rem !important;
+      margin-top: 1rem !important;
     }
 
     .btn {
@@ -112,7 +112,7 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -131,9 +131,9 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -149,7 +149,7 @@ try {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <h4 class="mb-3" style="margin-top: 12rem">Czy na pewno chcesz usunąć tę transakcję?</h4>
+    <h4 class="mb-3" style="margin-top: 17rem">Czy na pewno chcesz usunąć tę transakcję?</h4>
     <form class="col-12 mb-3" method="post">
       <div>
         <table class="table table-dark table-hover">
@@ -176,6 +176,7 @@ try {
               <td>{$income['comment']}</td>";
             }
             ?>
+            <?php $connection->close(); ?>
           </tr>
         </table>
       </div>

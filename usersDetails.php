@@ -18,26 +18,7 @@ try {
 
   if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
-
-  } else {
-
-
-    $userId = $_SESSION['id'];
-
-    // // if (isset($_POST['delete_income'])) {
-
-    // //   $incomeId = $_GET['income_id'];
-
-    //   // $incomeId = mysqli_real_escape_string($connection, $_GET['income_id']);
-    //   $query = "DELETE FROM incomes WHERE income_id = '$incomeId'";
-    //   $query_run = mysqli_query($connection, $query);
-
-    //   if ($query_run) {
-
-    //     header('Location: successDataChange.php');
   }
-
-
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
   echo '<br />Informacja developerska: ' . $e;
@@ -51,7 +32,7 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delete Income</title>
+  <title>Details</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
   <link rel="stylesheet" href="./css/style.css" />
@@ -77,11 +58,11 @@ try {
     }
 
     .my-5 {
-      margin-top: 3rem !important;
+      margin-top: 1.5rem !important;
     }
 
     .btn {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       margin-bottom: 1.5rem;
     }
 
@@ -113,7 +94,7 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -132,9 +113,9 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -150,12 +131,12 @@ try {
   </nav>
 
   <main class="form-signin w-100 m-auto">
-    <h4 class="mb-3" style="margin-top: 17rem">Dane użytkownika są następujące:</h4>
+    <h1 class="h3 mb-3 fw-normal" style="margin-top: 17rem">Dane użytkownika są następujące:</h1>
     <form class="col-12 mb-3" method="post">
       <div>
         <table class="table table-dark table-hover">
           <tr>
-            <th><span style="color: #E6B31E">Imię</span></th>
+            <th><span style="color: #E6B31E">Nazwa użytkownika</span></th>
             <th><span style="color: #E6B31E">E-mail</span></th>
 
           </tr>
@@ -171,13 +152,9 @@ try {
               <?php
             }
             ?>
-
+            <?php $connection->close(); ?>
           </tr>
         </table>
-      </div>
-      <div class="px-4 py-5 my-5 text-center">
-        <a href="./successLogin.php">
-          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wyjdź</button></a>
       </div>
     </form>
   </main>

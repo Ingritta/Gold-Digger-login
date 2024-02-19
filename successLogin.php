@@ -28,12 +28,16 @@ if (!isset($_SESSION['zalogowany'])) {
   <style>
     body {
       background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
     .form-signin {
       max-width: 530px;
       padding: 1rem;
+    }
+
+    .my-5 {
+      margin-top: 15rem !important;
     }
   </style>
 </head>
@@ -46,11 +50,10 @@ if (!isset($_SESSION['zalogowany'])) {
         aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarsExample03">
         <ul class="navbar-nav me-auto mb-2 mb-sm-0">
           <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Dodaj</a>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Dodaj</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
@@ -60,8 +63,8 @@ if (!isset($_SESSION['zalogowany'])) {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
-            <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
               <li><a class="dropdown-item" href="./choosenPeriodBalance.php">Wybór ręczny dat</a></li>
@@ -79,9 +82,9 @@ if (!isset($_SESSION['zalogowany'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
-            <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>

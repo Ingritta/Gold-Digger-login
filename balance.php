@@ -87,7 +87,6 @@ if (!isset($_SESSION['logged_id'])) {
       }
       $connection->close();
     }
-
   } catch (Exception $e) {
     echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
     echo '<br />Iformacja developerska: ' . $e;
@@ -131,8 +130,8 @@ if (!isset($_SESSION['logged_id'])) {
       text-align: center;
     }
 
-    .my-5 {
-      margin-top: 3rem !important;
+    .d-block {
+      margin-top: 12rem !important;
     }
   </style>
 </head>
@@ -179,7 +178,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -195,20 +194,28 @@ if (!isset($_SESSION['logged_id'])) {
   </nav>
 
   <main class="form-signin w-100 m-auto">
+
+    <img class="d-block mx-auto mb-4" src="./images/coin-flip-4.gif" alt="" width="72" height="72" border-radius="80%">
     <div>
-      <h2 class="mb-3" style="margin-top: 18rem">W skarbcu zdeponowano:
-      <b><span style="color: #CACACA"><?php echo $incomesSum; ?></span></b> <b><span style="color: #E6B31E">zł</span></b>.
+      <h2 class="mb-3" style="margin-top: 5rem">W skarbcu zdeponowano:
+        <b><span style="color: #CACACA">
+            <?php echo round($incomesSum, 2); ?>
+          </span></b> <b><span style="color: #E6B31E">zł</span></b>.
       </h2>
     </div>
 
     <div>
-      <h2 class="mb-3" style="margin-top: 3rem">Zasoby skarbca zmniejszyły się o:
-      <b><span style="color: #CACACA"><?php echo $expensesSum; ?></span></b> <b><span style="color: #E6B31E">zł</span></b>.
+      <h2 class="mb-3" style="margin-top: 3rem">Ze skarbca pobrano:
+        <b><span style="color: #CACACA">
+            <?php echo round($expensesSum, 2); ?>
+          </span></b> <b><span style="color: #E6B31E">zł</span></b>.
       </h2>
     </div>
 
     <h2 class="mb-3" style="margin-top: 3rem">Całkowity bilans wynosi:
-    <b><span style="color: #CACACA"><?php echo $balance; ?></span></b><b><span style="color: #E6B31E"> zł</span></b>.
+      <b><span style="color: #CACACA">
+          <?php echo round($balance, 2); ?>
+        </span></b><b><span style="color: #E6B31E"> zł</span></b>.
     </h2>
 
   </main>

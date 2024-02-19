@@ -19,9 +19,13 @@ session_start();
   <style>
     body {
       background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
+    .my-5 {
+      margin-top: 17rem !important;
+    }
+    
     .form-signin {
       max-width: 530px;
       padding: 1rem;

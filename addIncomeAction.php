@@ -33,12 +33,12 @@ try {
 
     if ($date < '2000-01-01') {
       $ok = false;
-      $_SESSION['e_date'] = "Podano niprawidłową datę!";
+      $_SESSION['e_date'] = "Data nie może być starsza niż 01.01.2000r!";
     }
 
     if ($date > $currentDate) {
       $ok = false;
-      $_SESSION['e_date'] = "Data znajduje się poza zakresem!";
+      $_SESSION['e_date'] = "Wybierz maksymalnie dzisiejszą datę!";
     }
 
     $amount = $_POST['amount'];
@@ -92,9 +92,8 @@ try {
       $_SESSION['blad'] = '<span style="color:red">Proszę podać wszystkie dane</span>';
       header('Location: addIncome.php');
     }
+    $connection->close();
   }
-  $connection->close();
-
 } catch (Exception $e) {
   echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
   echo '<br />Iformacja developerska: ' . $e;

@@ -12,9 +12,9 @@ require_once 'database.php';
 mysqli_report(MYSQLI_REPORT_STRICT);
 
 try {
-  $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+  $connection = new mysqli($host, $db_user, $db_password, $db_name);
 
-  if ($polaczenie->connect_errno != 0) {
+  if ($connection->connect_errno != 0) {
     throw new Exception(mysqli_connect_errno());
 
   } else {
@@ -25,30 +25,31 @@ try {
 
     if (isset($_POST['haslo1']) && isset($_POST['haslo2'])) {
 
-    $haslo1 = $_POST['haslo1'];
-    $haslo2 = $_POST['haslo2'];
-    $_SESSION['fr_haslo1'] = $haslo1;
+      $haslo1 = $_POST['haslo1'];
+      $haslo2 = $_POST['haslo2'];
+      $_SESSION['fr_haslo1'] = $haslo1;
 
-    if ((strlen($haslo1) < 8) || (strlen($haslo1) > 20)) {
-      $ok = false;
-      $_SESSION['e_haslo'] = "Hasło musi posiadać od 8 do 20 znaków.";
-    }
+      if ((strlen($haslo1) < 8) || (strlen($haslo1) > 20)) {
+        $ok = false;
+        $_SESSION['e_haslo'] = "Hasło musi posiadać od 8 do 20 znaków.";
+      }
 
-    if ($haslo1 != $haslo2) {
-      $ok = false;
-      $_SESSION['e_haslo'] = "Podane hasła nie są identyczne.";
-    }
+      if ($haslo1 != $haslo2) {
+        $ok = false;
+        $_SESSION['e_haslo'] = "Podane hasła nie są identyczne.";
+      }
 
       if ($ok == true) {
         $haslo_hash = password_hash($haslo1, PASSWORD_DEFAULT);
         if ($db->query("UPDATE users SET pass='$haslo_hash' WHERE id = $userId")) {
           header('Location: successDataChange.php'); {
             $_SESSION['fr_haslo1'] = '';
-            throw new Exception($polaczenie->error);
+            throw new Exception($connection->error);
           }
         }
       }
     }
+    $connection->close();
   }
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
@@ -84,6 +85,10 @@ try {
       color: #E6B31E;
     }
 
+    .btn {
+      margin-top: 1.5rem;
+    }
+
     .mb-3 {
       margin-top: 16rem;
       text-align: center;
@@ -106,13 +111,13 @@ try {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./addIncome.php">Przychód</a></li>
               <li><a class="dropdown-item" href="./addExpense.php">Wydatek</a></li>
-                          </ul>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -131,9 +136,9 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
-            <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -153,7 +158,8 @@ try {
       <h1 class="h3 mb-3 fw-normal">Podaj nowe hasło</h1>
       <div class="form-floating">
         <input type="password" class="form-control" id="inputPassword" placeholder="Password"
-          data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off" name="haslo1" required type="password"  value="<?php
+          data-nlok-ref-guid="ffb8d5ff-837f-4317-da36-63839eb09644" autocomplete="off" name="haslo1" required
+          type="password" value="<?php
           if (isset($_SESSION['fr_haslo1'])) {
             echo $_SESSION['fr_haslo1'];
             unset($_SESSION['fr_haslo1']);

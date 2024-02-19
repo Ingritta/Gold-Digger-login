@@ -14,9 +14,9 @@ if (!isset($_SESSION['logged_id'])) {
   mysqli_report(MYSQLI_REPORT_STRICT);
 
   try {
-    $polaczenie = new mysqli($host, $db_user, $db_password, $db_name);
+    $connection = new mysqli($host, $db_user, $db_password, $db_name);
 
-    if ($polaczenie->connect_errno != 0) {
+    if ($connection->connect_errno != 0) {
       throw new Exception(mysqli_connect_errno());
 
     } else {
@@ -44,11 +44,12 @@ if (!isset($_SESSION['logged_id'])) {
           if ($db->query("UPDATE users SET user='$name' WHERE id = $userId")) {
             header('Location: successDataChange.php'); {
               $_SESSION['fr_name'] = '';
-              throw new Exception($polaczenie->error);
+              throw new Exception($connection->error);
             }
           }
         }
       }
+      $connection->close();
     }
   } catch (Exception $e) {
     echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
@@ -85,6 +86,10 @@ if (!isset($_SESSION['logged_id'])) {
       color: #E6B31E;
     }
 
+    .btn {
+      margin-top: 1.5rem;
+    }
+
     .mb-3 {
       margin-top: 18rem;
       text-align: center;
@@ -113,7 +118,7 @@ if (!isset($_SESSION['logged_id'])) {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -134,7 +139,7 @@ if (!isset($_SESSION['logged_id'])) {
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -151,7 +156,7 @@ if (!isset($_SESSION['logged_id'])) {
 
   <main class="form-signin w-100 m-auto">
     <form method="post">
-      <h1 class="h3 mb-3 fw-normal">Podaj nowe imię</h1>
+      <h1 class="h3 mb-3 fw-normal">Podaj nową nazwę</h1>
       <div class="form-floating">
         <input type="text" class="form-control" id="floatingInput" placeholder="Name"
           data-nlok-ref-guid="b165b106-74fc-4d1d-a447-b71f45cafb0b" autocomplete="off" name="name" autofocus required
@@ -169,7 +174,7 @@ if (!isset($_SESSION['logged_id'])) {
               d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
           </svg>
         </div>
-        <label for="floatingInput">Imię</label>
+        <label for="floatingInput">Nazwa użytkownika</label>
       </div>
       <?php
       if (isset($_SESSION['e_name'])) {

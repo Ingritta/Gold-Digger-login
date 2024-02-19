@@ -40,21 +40,21 @@ try {
       $_SESSION['fr_comment'] = $comment;
 
       if (isset($_POST['date'])) {
-        
-      $date = new DateTime();
 
-      $currentDate = date('Y') . "-" . date('m') . "-" . date('d');
-       
+        $date = new DateTime();
+
+        $currentDate = date('Y') . "-" . date('m') . "-" . date('d');
+
         $date = $_POST['date'];
-       
+
         if ($date > $currentDate) {
           $ok = false;
-          $_SESSION['e_date'] = "Data znajduje się poza zakresem!";
+          $_SESSION['e_date'] = "Wybierz maksymalnie dzisiejszą datę!";
         }
 
         if ($date < '2000-01-01') {
           $ok = false;
-          $_SESSION['e_date'] = "Podano niprawidłową datę!";
+          $_SESSION['e_date'] = "Data nie może być starsza niż 01.01.2000r!";
         }
       }
 
@@ -108,7 +108,6 @@ try {
       }
     }
   }
-  // $connection->close();
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
   echo '<br />Informacja developerska: ' . $e;
@@ -133,7 +132,7 @@ try {
   <style>
     body {
       background-image: url("images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
     .form-signin {
@@ -146,7 +145,7 @@ try {
     }
 
     .mb-3 {
-      margin-top: 5rem;
+      margin-top: 11rem;
       text-align: center;
     }
 
@@ -178,7 +177,7 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -197,9 +196,9 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -254,12 +253,13 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="number" class="form-control" id="goal" placeholder="Kwota" name="amount" required="" value="<?php
-              if (isset($_SESSION['fr_amount'])) {
-                echo $_SESSION['fr_amount'];
-                unset($_SESSION['fr_amount']);
-              }
-              ?>">
+              <input type="number" class="form-control" id="goal" placeholder="Kwota" name="amount" step="0.01"
+                required="" value="<?php
+                if (isset($_SESSION['fr_amount'])) {
+                  echo $_SESSION['fr_amount'];
+                  unset($_SESSION['fr_amount']);
+                }
+                ?>">
             </div>
             <?php
             if (isset($_SESSION['e_amount'])) {
@@ -280,6 +280,7 @@ try {
                   <?php echo "{$categories['name']}" ?>
                 </option>;
               <?php } ?>
+              <?php $connection->close(); ?>
             </select>
             <?php
             if (isset($_SESSION['e_choise'])) {
@@ -298,13 +299,12 @@ try {
                     d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
                 </svg>
               </span>
-              <input type="text" class="form-control" id="goal" placeholder="Komentarz" name="comment" 
-                value="<?php
-                if (isset($_SESSION['fr_comment'])) {
-                  echo $_SESSION['fr_comment'];
-                  unset($_SESSION['fr_comment']);
-                }
-                ?>">
+              <input type="text" class="form-control" id="goal" placeholder="Komentarz" name="comment" value="<?php
+              if (isset($_SESSION['fr_comment'])) {
+                echo $_SESSION['fr_comment'];
+                unset($_SESSION['fr_comment']);
+              }
+              ?>">
             </div>
             <?php
             if (isset($_SESSION['e_comment'])) {
@@ -316,7 +316,7 @@ try {
           <div class="px-4 py-5 my-5 text-center">
             <button type="submit" name="editIncome" class="btn btn-primary btn-lg px-4 gap-3">Zmień</button></a>
             <a href="./successLogin.php">
-          <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wyjdź</button></a>
+              <button type="button" class="btn btn-outline-secondary btn-lg px-4">Wyjdź</button></a>
           </div>
         </div>
       </form>

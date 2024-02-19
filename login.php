@@ -64,7 +64,6 @@ try {
     }
     $connection->close();
   }
-
 } catch (Exception $e) {
   echo '<span style="color:red;">Błąd serwera! Przepraszamy za niedogodności i prosimy o wizytę w innym terminie!</span>';
   echo '<br />Informacja developerska: ' . $e;

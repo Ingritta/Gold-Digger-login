@@ -46,7 +46,7 @@ try {
           $ok = false;
           $_SESSION['e_description'] = "Istnieje już taka kategoria!";
         }
-        
+
         $_SESSION['fr_description'] = $description;
 
         if ($ok == true) {
@@ -96,10 +96,9 @@ try {
         }
       }
     }
+    $connection->close();
   }
-  $connection->close();
-
-} catch (Exception $e) {
+ } catch (Exception $e) {
   echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
   echo '<br />Iformacja developerska: ' . $e;
 }
@@ -138,6 +137,10 @@ try {
       text-align: center;
     }
 
+    .btn {
+      margin-top: 1.5rem;
+    }
+
     .col-12 {
       margin-bottom: 2.5rem !important;
     }
@@ -165,7 +168,7 @@ try {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -184,8 +187,9 @@ try {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -216,22 +220,19 @@ try {
       <div class="form-floating">
         <div class="input-group has-validation">
           <span class="input-group-text">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen"
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="43" fill="currentColor" class="bi bi-pen"
               viewBox="0 0 16 16">
               <path
                 d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
             </svg>
           </span>
-          <input type="text" class="form-control" id="goal" placeholder="Nazwa kategorii" required=""
-            name="description" value="<?php
-              if (isset($_SESSION['fr_description'])) {
-                echo $_SESSION['fr_description'];
-                unset($_SESSION['fr_description']);
-              }
-              ?>">
-          <!-- <div class="invalid-feedback">
-            Proszę uzupełnić informację.
-          </div> -->
+          <input type="text" class="form-control" id="goal" placeholder="Nazwa kategorii" required="" name="description"
+            value="<?php
+            if (isset($_SESSION['fr_description'])) {
+              echo $_SESSION['fr_description'];
+              unset($_SESSION['fr_description']);
+            }
+            ?>">
         </div>
         <?php
         if (isset($_SESSION['e_description'])) {

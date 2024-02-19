@@ -24,12 +24,16 @@ session_unset();
   <style>
     body {
       background-image: url("./images/gold-ring-1.jpg");
-      height: 850px;
+      height: 1000px;
     }
 
     .form-signin {
       max-width: 530px;
       padding: 1rem;
+    }
+
+    .d-block {
+      margin-top: 5rem !important;
     }
   </style>
 </head>

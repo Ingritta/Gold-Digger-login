@@ -43,12 +43,12 @@ if (!isset($_SESSION['logged_id'])) {
 
         if ($startDate < '2000-01-01') {
           $ok = false;
-          $_SESSION['e_startDate'] = "Podano nieprawidłową datę!";
+          $_SESSION['e_startDate'] = "Data nie może być starsza niż 01.01.2000r!";
         }
 
         if ($startDate > $date) {
           $ok = false;
-          $_SESSION['e_startDate'] = "Data znajduje się poza zakresem!";
+          $_SESSION['e_startDate'] = "Wybierz maksymalnie dzisiejszą datę!";
         }
 
         if ($endDate == '') {
@@ -58,12 +58,12 @@ if (!isset($_SESSION['logged_id'])) {
 
         if ($endDate < '2000-01-01') {
           $ok = false;
-          $_SESSION['e_endDate'] = "Podano nieprawidłową datę!";
+          $_SESSION['e_endDate'] = "Data nie może być starsza niż 01.01.2000r!";
         }
 
         if ($endDate > $date) {
           $ok = false;
-          $_SESSION['e_endDate'] = "Data znajduje się poza zakresem!";
+          $_SESSION['e_endDate'] = "Wybierz maksymalnie dzisiejszą datę!";
         }
 
         if ($startDate > $endDate) {
@@ -139,10 +139,8 @@ if (!isset($_SESSION['logged_id'])) {
         $_SESSION['fr_startDate'] = '';
         $_SESSION['fr_endDate'] = '';
       }
+      $connection->close();
     }
-
-    $connection->close();
-
   } catch (Exception $e) {
     echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
     echo '<br />Iformacja developerska: ' . $e;
@@ -223,7 +221,7 @@ if (!isset($_SESSION['logged_id'])) {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -242,9 +240,9 @@ if (!isset($_SESSION['logged_id'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -316,7 +314,6 @@ if (!isset($_SESSION['logged_id'])) {
         </svg>
         Akceptuj
       </button>
-
       <h4 class="mb-3" style="margin-top: 1rem">Przychody</h4>
       <div>
         <table class="table table-dark table-hover">
@@ -371,11 +368,10 @@ if (!isset($_SESSION['logged_id'])) {
           }
           ?>
         </table>
-        
         <div>
           <p class="lead mb-4">W badanym okresie w skarbcu zdeponowano:
             <?php if ($ok == true) {
-              echo $incomesSum;
+              echo round($incomesSum, 2);
             } ?> <b><span style="color: #E6B31E">zł</span></b>.
           </p>
         </div>
@@ -442,14 +438,14 @@ if (!isset($_SESSION['logged_id'])) {
         <div>
           <p class="lead mb-4">W badanym okresie zasoby skarbca zmniejszyły się o:
             <?php if ($ok == true) {
-              echo $expensesSum;
+              echo round($expensesSum, 2);
             } ?> <b><span style="color: #E6B31E">zł</span></b>.
           </p>
         </div>
         <h4 class="mb-3" style="margin-top: 1rem">Bilans: </h4>
         <p class="lead mb-4">W danym okresie bilans wynosił:
           <?php if ($ok == true) {
-            echo $balance;
+            echo round($balance, 2);
           } ?><b><span style="color: #E6B31E"> zł</span></b>.
         </p>
       </div>

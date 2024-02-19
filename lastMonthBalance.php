@@ -22,7 +22,7 @@ if (!isset($_SESSION['logged_id'])) {
     } else {
 
       $date = new DateTime();
- 
+
       if (date('m') == 1) {
         $year = date('Y') - 1;
         $startDate = $year . "-" . 12 . "-" . "%";
@@ -94,11 +94,8 @@ if (!isset($_SESSION['logged_id'])) {
         $expensesSum = 0;
         $balance = 0;
       }
-
       $connection->close();
     }
-
-
   } catch (Exception $e) {
     echo '<span style="color:red">Błąd serwera. Przepraszamy. </span>';
     echo '<br />Iformacja developerska: ' . $e;
@@ -165,7 +162,7 @@ if (!isset($_SESSION['logged_id'])) {
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Przeglądaj
               bilans</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
+              <li><a class="dropdown-item" href="./balance.php">Podsumowanie</a></li>
               <li><a class="dropdown-item" href="./currentMonthBalance.php">Bieżący miesiąc</a></li>
               <li><a class="dropdown-item" href="./lastMonthBalance.php">Poprzedni miesiąc</a></li>
               <li><a class="dropdown-item" href="./currentYearBalance.php">Bieżący rok</a></li>
@@ -184,9 +181,9 @@ if (!isset($_SESSION['logged_id'])) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Użytkownik</a>
             <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
+              <li><a class="dropdown-item" href="./usersDetails.php">Dane użytkownika</a></li>
               <li><a class="dropdown-item" href="./editEmail.php">Zmiana adresu e-mail</a></li>
-              <li><a class="dropdown-item" href="./editName.php">Zmiana imienia</a></li>
+              <li><a class="dropdown-item" href="./editName.php">Zmiana nazwy użytkownika</a></li>
               <li><a class="dropdown-item" href="./editPassword.php">Zmiana hasła</a></li>
               <li><a class="dropdown-item" href="./removeAccount.php">Usuń konto</a></li>
             </ul>
@@ -214,14 +211,14 @@ if (!isset($_SESSION['logged_id'])) {
           <th></th>
         </tr>
         <tr>
-        <?php
+          <?php
           foreach ($incomes as $user) {
             echo "<td>{$user['date']}</td>
               <td>{$user['amount']}</td>
               <td>{$user['category']}
               <td>{$user['comment']}</td>" ?>
             <td>
-            <form style="height: 7px" class="col-12 mb-3" method="post" action="editIncome.php">
+              <form style="height: 7px" class="col-12 mb-3" method="post" action="editIncome.php">
                 <a href="./editIncome.php?income_id=<?= $user['income_id']; ?>">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
@@ -231,7 +228,7 @@ if (!isset($_SESSION['logged_id'])) {
               </form>
             </td>
             <td>
-            <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteIncome.php">
+              <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteIncome.php">
                 <a href="./deleteIncome.php?income_id=<?= $user['income_id']; ?>">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
@@ -247,7 +244,7 @@ if (!isset($_SESSION['logged_id'])) {
       </table>
       <div>
         <p class="lead mb-4">W badanym okresie w skarbcu zdeponowano:
-          <?php echo $incomesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
+          <?php echo round($incomesSum, 2); ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
@@ -264,7 +261,7 @@ if (!isset($_SESSION['logged_id'])) {
           <th></th>
         </tr>
         <tr>
-        <?php
+          <?php
           foreach ($expenses as $user) {
             echo "<td>{$user['date']}</td>
               <td>{$user['amount']}</td>
@@ -272,7 +269,7 @@ if (!isset($_SESSION['logged_id'])) {
               <td>{$user['comment']}</td>
               <td>{$user['payment_method']}</td>" ?>
             <td>
-            <form style="height: 7px" class="col-12 mb-3" method="post" action="editExpense.php">
+              <form style="height: 7px" class="col-12 mb-3" method="post" action="editExpense.php">
                 <a href="./editExpense.php?expense_id=<?= $user['expense_id']; ?>">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-pencil-fill" viewBox="0 0 16 16" style="color: #E6B31E">
@@ -282,7 +279,7 @@ if (!isset($_SESSION['logged_id'])) {
               </form>
             </td>
             <td>
-            <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteExpense.php">
+              <form style="height: 7px" class="col-12 mb-3" method="post" action="deleteExpense.php">
                 <a href="./deleteExpense.php?expense_id=<?= $user['expense_id']; ?>">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-trash3-fill" viewBox="0 0 16 16" style="color: #E6B31E">
@@ -298,14 +295,14 @@ if (!isset($_SESSION['logged_id'])) {
       </table>
       <div>
         <p class="lead mb-4">W badanym okresie zasoby skarbca zmniejszyły się o:
-          <?php echo $expensesSum; ?> <b><span style="color: #E6B31E">zł</span></b>.
+          <?php echo round($expensesSum, 2); ?> <b><span style="color: #E6B31E">zł</span></b>.
         </p>
       </div>
     </div>
     <h4 class="mb-3">Bilans</h4>
     <div>
       <p class="lead mb-4">W danym okresie bilans wynosił:
-        <?php echo $balance; ?><b><span style="color: #E6B31E"> zł</span></b>.
+        <?php echo round($balance, 2); ?><b><span style="color: #E6B31E"> zł</span></b>.
       </p>
     </div>
   </main>
